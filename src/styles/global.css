@@ -1,9 +1,119 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-*{
+@custom-variant dark (&:is(.dark *));
+
+* {
   box-sizing: border-box;
 }
 
 :root {
   font-family: 'JetBrains Mono', monospace;
+  --radius: 0.625rem;
+
+  /* Light mode */
+  --background: #F9F9F9;
+  --foreground: #101010;
+  --svg: #101010;
+  --button-background: color-mix(in srgb, #101010 10%, transparent);
+  --button-border: color-mix(in srgb, #101010 30%, transparent);
+
+  --card: #F9F9F9;
+  --card-foreground: #101010;
+  --popover: #F9F9F9;
+  --popover-foreground: #101010;
+  --primary: #101010;
+  --primary-foreground: #F9F9F9;
+  --secondary: #10101010;
+  --secondary-foreground: #101010;
+  --muted: #10101010;
+  --muted-foreground: #101010;
+  --accent: #10101010;
+  --accent-foreground: #101010;
+  --destructive: #ef4444;
+  --border: #10101030;
+  --input: #10101030;
+  --ring: #101010;
+}
+
+h1{
+  font-size: 25px;
+  font-weight: bolder;
+}
+
+h2{
+  font-size: 20px;
+  font-weight: bold;
+}
+
+p{
+  font-size: 14px;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-svg: var(--svg);
+  --color-button-background: var(--button-background);
+  --color-button-border: var(--button-border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+.dark {
+  /* Dark mode */
+  --background: #101010;
+  --foreground: #F9F9F9;
+  --svg: #F9F9F9;
+  --button-background: color-mix(in srgb, #101010 50%, transparent);
+  --button-border: color-mix(in srgb, #101010 70%, transparent);
+
+  --card: #101010;
+  --card-foreground: #F9F9F9;
+  --popover: #101010;
+  --popover-foreground: #F9F9F9;
+  --primary: #F9F9F9;
+  --primary-foreground: #101010;
+  --secondary: #10101080;
+  --secondary-foreground: #F9F9F9;
+  --muted: #10101080;
+  --muted-foreground: #F9F9F9;
+  --accent: #10101080;
+  --accent-foreground: #F9F9F9;
+  --destructive: #ef4444;
+  --border: #101010B3;
+  --input: #101010B3;
+  --ring: #F9F9F9;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
