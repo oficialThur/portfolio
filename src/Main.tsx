@@ -7,6 +7,7 @@ import App from './App.tsx'
 //paginas das rotas
 import Home from './router/Home.tsx'
 import Study from './router/Study.tsx'
+import Projects from './router/Projects.tsx'
 
 const router = createBrowserRouter([
   {
@@ -21,8 +22,12 @@ const router = createBrowserRouter([
         element: <Home />
       },
       {
-        path:'Formacao',
+        path:'formações',
         element: <Study/>  
+      },
+      {
+        path: 'projetos',
+        element: <Projects />
       }
     ]
 

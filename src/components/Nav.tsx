@@ -10,13 +10,13 @@ import {
 
 const Nav = () => {
   return (
-    <nav className='container h-11.25 flex justify-between items-center px-7.5'>
+    <nav className='container h-11.25 flex justify-between items-center px-2 md:px-7.5'>
       <h1 className='text-shadow-lg'>
         Dev Thur
       </h1>
       <DropdownMenu >
         <DropdownMenuTrigger asChild>
-          <Button className='w-32' variant="outline">Open</Button>
+          <Button className='w-32 shadow-lg shadow-black-100' variant="outline">Open</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuGroup>
