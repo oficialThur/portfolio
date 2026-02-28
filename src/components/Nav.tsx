@@ -1,5 +1,6 @@
 import '../styles/global.css'
 import { Button } from "./ui/button"
+import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,13 +22,16 @@ const Nav = () => {
         <DropdownMenuContent align="start">
           <DropdownMenuGroup>
             <DropdownMenuItem className='text-center'>
-              Profile
+              <Link to='/'>Home</Link>
             </DropdownMenuItem>
             <DropdownMenuItem className='text-center'>
-              Billing
+              <Link to='/formações'>Formações</Link>
             </DropdownMenuItem>
             <DropdownMenuItem className='text-center'>
-              Settings
+              <Link to='/projetos'>Projetos</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className='text-center'>
+              <Link to='/contatos'>Contato</Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

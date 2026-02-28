@@ -33,13 +33,22 @@
   --accent-foreground: #101010;
   --destructive: #ef4444;
   --border: #10101030;
-  --input: #10101030;
+  --input: #f9f9f9;
+  --border-input: #10101070;
   --ring: #101010;
+}
+
+.bg-input {
+  background-color: var(--input);
+}
+
+.border-input {
+  border-color: var(--border-input);
 }
 
 h1{
   font-size: 25px;
-  font-weight: bolder;
+  font-weight: 800;
 }
 
 h2{
@@ -109,8 +118,9 @@ p{
   --accent: #10101080;
   --accent-foreground: #F9F9F9;
   --destructive: #ef4444;
-  --border: #101010B3;
-  --input: #101010B3;
+  --border: #10101030;
+  --input: #10101030;
+  --border-input: #f9f9f930;
   --ring: #F9F9F9;
 }
 
