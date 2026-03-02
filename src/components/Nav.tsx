@@ -12,7 +12,7 @@ import {
 const Nav = () => {
   return (
     <nav className='container h-11.25 flex justify-between items-center px-2 md:px-7.5'>
-      <h1 className='text-shadow-lg'>
+      <h1 className='text-shadow-lg text-shadow-black-100'>
         Dev Thur
       </h1>
       <DropdownMenu >
@@ -21,16 +21,16 @@ const Nav = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuGroup>
-            <DropdownMenuItem className='text-center'>
+            <DropdownMenuItem className='text-center text-shadow-lg text-shadow-black-100'>
               <Link to='/'>Home</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className='text-center'>
+            <DropdownMenuItem className='text-center text-shadow-lg text-shadow-black-100'>
               <Link to='/formações'>Formações</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className='text-center'>
+            <DropdownMenuItem className='text-center text-shadow-lg text-shadow-black-100'>
               <Link to='/projetos'>Projetos</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className='text-center'>
+            <DropdownMenuItem className='text-center text-shadow-lg text-shadow-black-100'>
               <Link to='/contatos'>Contato</Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>

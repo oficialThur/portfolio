@@ -10,6 +10,8 @@ import Study from './router/Study.tsx'
 import Projects from './router/Projects.tsx'
 import Contact from './router/Contact.tsx'
 
+export const routePaths = ['/', '/formações', '/projetos', '/contatos'];
+
 const router = createBrowserRouter([
   {
     path: '/',

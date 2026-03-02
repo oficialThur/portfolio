@@ -13,7 +13,7 @@ const Study = () => {
     return (
         <div className="container h-screen">
             <section className="w-full h-full flex flex-col justify-center p-2 md:p-30 gap-10">
-                <h2 className="text-shadow-lg">
+                <h2 className="text-shadow-lg text-shadow-black-100">
                     Minhas formações
                 </h2>
                 <div className="p-2 md:p-10">
@@ -29,8 +29,8 @@ const Study = () => {
                                 </div>
                                 <div className="mt-3 sm:pe-8">
                                     <time className="bg-neutral-secondary-medium border border-default-medium text-heading text-xs font-medium px-1.5 py-0.5 rounded shadow-lg shadow-black-300">{item.data}</time>
-                                    <h3 className="text-lg font-semibold text-heading my-2 text-shadow-lg">{item.title}</h3>
-                                    <p className="text-body mb-4 text-shadow-lg">{item.text}</p>
+                                    <h3 className="text-lg font-semibold text-heading my-2 text-shadow-lg text-shadow-black-100">{item.title}</h3>
+                                    <p className="text-body mb-4 text-shadow-lg text-shadow-black-100">{item.text}</p>
                                 </div>
                             </li>
                         ))}
