@@ -9,6 +9,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import "@/styles/global.css"
 import { Alert, AlertDescription } from "./ui/alert"
 import { CheckCircleIcon, WarningCircleIcon } from "@phosphor-icons/react"
+
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+
 const Footer = () => {
 
   const contactSchema = z.object({
@@ -48,36 +51,55 @@ const Footer = () => {
   } = form
 
   async function onSubmit(data: ContactFormData) {
-    const resposta = await fetch('http://localhost:8000/contato.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
+    try {
+      const resposta = await fetch(`${API_URL}/contato.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
 
-    const json: ApiResponse = await resposta.json()
+      const json: ApiResponse = await resposta.json()
 
-    if (!json.success) {
-      if ('errors' in json && json.errors) {
-        ; (Object.keys(json.errors) as (keyof ContactFormData)[]).forEach((field) => {
-          const fieldErrors = json.errors?.[field]
-          if (fieldErrors?.length) {
-            setError(field, { message: fieldErrors.join(', ') })
-          }
-        })
-      } else {
-        setError('root', { message: json.message ?? 'Ocorreu um erro ao enviar a mensagem. Por favor, tente novamente mais tarde.' })
+      if (!json.success) {
+        if ('errors' in json && json.errors) {
+          ;(Object.keys(json.errors) as (keyof ContactFormData)[]).forEach((field) => {
+            const fieldErrors = json.errors?.[field]
+            if (fieldErrors?.length) {
+              setError(field, { message: fieldErrors.join(', ') })
+            }
+          })
+        } else {
+          setError('root', { message: json.message ?? 'Ocorreu um erro ao enviar a mensagem. Por favor, tente novamente mais tarde.' })
+        }
+        return
       }
-      return
+      reset()
+    } catch {
+      setError('root', { message: 'Erro de conexão com o servidor. Tente novamente mais tarde.' })
     }
-    reset()
   }
 
   return (
     <footer className="container max-w-100 h-full flex flex-col justify-center items-center">
+      {form.formState.errors.root && (
+        <Alert className="mt-2.5 flex items-center border-red-500 text-red-700 dark:text-red-400" variant="destructive">
+          <WarningCircleIcon className="w-3 h-3 mb-1" />
+          <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
+        </Alert>
+      )}
+
+      {isSubmitSuccessful && (
+        <Alert className="border-green-500 text-green-700 dark:text-green-400 flex items-center mt-2.5">
+          <CheckCircleIcon className="w-3 h-3 mb-1" />
+          <AlertDescription>
+            Mensagem enviada com sucesso!
+          </AlertDescription>
+        </Alert>
+      )}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-lg flex flex-col justify-center items-center">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-lg flex flex-col justify-center items-center mt-1.5">
           <FormField control={form.control} name="name" render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel>
@@ -158,21 +180,7 @@ const Footer = () => {
             </FormItem>
           )} />
 
-          {form.formState.errors.root && (
-            <Alert className="mt-2.5 flex items-center border-red-500 text-red-700 dark:text-red-400" variant="destructive">
-              <WarningCircleIcon className="w-3 h-3 mb-1" />
-              <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
-            </Alert>
-          )}
-
-          {isSubmitSuccessful && (
-            <Alert className="border-green-500 text-green-700 dark:text-green-400 flex items-center mt-2.5">
-              <CheckCircleIcon className="w-3 h-3 mb-1" />
-              <AlertDescription>
-                Mensagem enviada com sucesso!
-              </AlertDescription>
-            </Alert>
-          )}
+          
 
 
           <Button type="submit" disabled={isSubmitting} className="mt-4 shadow-lg shadow-black-100">

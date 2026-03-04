@@ -1,7 +1,15 @@
 <?php
 
+require_once __DIR__ . '/vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$allowed = ['http://localhost:5174', 'https://seudominio.com'];
+$allowed = ['http://localhost:5173', 'http://localhost:5174', 'https://seudominio.com'];
 
 if (in_array($origin, $allowed)) {
     header('Access-Control-Allow-Origin: ' . $origin);
@@ -16,7 +24,6 @@ const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_MIN = 15;
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: http://localhost:5174');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
@@ -80,7 +87,6 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors['email'][] = 'E-mail inv
 if (mb_strlen($message) < 10)   $errors['message'][] = 'Mensagem deve ter pelo menos 10 caracteres.';
 if (mb_strlen($message) > 2000) $errors['message'][] = 'Mensagem muito longa.';
 
-// the value should be a boolean (true/false) coming from the JSON
 if (!is_bool($isRecruiter)) {
     $errors['isRecruiter'][] = 'Selecione uma opção.';
 }
@@ -93,7 +99,6 @@ if (!empty($errors)) {
 
 $name        = htmlspecialchars($name,    ENT_QUOTES, 'UTF-8');
 $message     = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
-// ensure boolean type (should already be boolean after validation)
 $isRecruiter = (bool) $isRecruiter;
 $recruiterLabel = $isRecruiter ? 'Sim' : 'Não';
 
@@ -115,8 +120,31 @@ $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 $subject = $isRecruiter
     ? "[Recrutador] Nova mensagem de $name"
     : "[Contato] Nova mensagem de $name";
+$mail = new PHPMailer(true);
 
-$sent = mail(CONTACT_EMAIL, $subject, $emailBody, $headers);
+try {
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.gmail.com';
+    $mail->SMTPAuth   = true;
+    $mail->Username  = $_ENV['SMTP_USER'];
+    $mail->Password  = $_ENV['SMTP_PASS'];
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port       = 587;
+    $mail->CharSet   = 'UTF-8';
+
+    $mail->setFrom('noreply@seudominio.com', 'Portfolio Contact');
+    $mail->addAddress(CONTACT_EMAIL);
+    $mail->addReplyTo($email, $name);
+
+    $mail->isHTML(false);
+    $mail->Subject = $subject;
+    $mail->Body    = $emailBody;
+
+    $mail->send();
+    $sent = true;
+} catch (Exception $e) {
+    $sent = false;
+}
 
 if (!$sent) {
     http_response_code(500);

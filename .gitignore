@@ -26,3 +26,5 @@ Dockerfile*
 docker-compose*
 Form.md*
 *.env.development
+backend/.env
+backend/vendor/
