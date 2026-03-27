@@ -28,3 +28,6 @@ Form.md*
 *.env.development
 backend/.env
 backend/vendor/
+.vscode/mcp.json
+.vscode/launch.json
+

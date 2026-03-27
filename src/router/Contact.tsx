@@ -11,7 +11,7 @@ import Footer from "@/components/Footer"
 const Contact = () => {
     return (
         <div className="container h-screen">
-            <section className="p-10 w-full flex flex-col justify-center items-center h-screen">
+            <section className="p-10 pt-4 md:pt-10 w-full flex flex-col justify-center items-center h-screen">
                 <div className="w-full h-full flex flex-col items-center">
                     <header className="w-full h-11.25 flex flex-col gap-1.5 md:flex-row justify-between items-center px-2 md:px-7.5 ">
                         <h2 className="text-shadow-lg text-shadow-black-100">

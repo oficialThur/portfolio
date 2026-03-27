@@ -25,10 +25,10 @@ const Study = () => {
                                     <div className="flex items-center w-6 h-6 rounded-full p-0 md:p-0.5">
                                         {item.icon}
                                     </div>
-                                    <div className="hidden sm:flex w-full bg-neutral-quaternary h-px border"></div>
+                                    <div className="hidden sm:flex w-full h-px bg-border"></div>
                                 </div>
                                 <div className="mt-3 sm:pe-8">
-                                    <time className="bg-neutral-secondary-medium border border-default-medium text-heading text-xs font-medium px-1.5 py-0.5 rounded shadow-lg shadow-black-300">{item.data}</time>
+                                    <time className="bg-neutral-secondary-medium border border-default-medium dark:border dark:border-border dark:bg-white/5 text-heading text-xs font-medium px-1.5 py-0.5 rounded shadow-lg shadow-black-300">{item.data}</time>
                                     <h3 className="text-lg font-semibold text-heading my-2 text-shadow-lg text-shadow-black-100">{item.title}</h3>
                                     <p className="text-body mb-4 text-shadow-lg text-shadow-black-100">{item.text}</p>
                                 </div>

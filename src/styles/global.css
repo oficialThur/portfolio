@@ -118,10 +118,37 @@ p{
   --accent: #10101080;
   --accent-foreground: #F9F9F9;
   --destructive: #ef4444;
-  --border: #10101030;
+  --border: #f9f9f955;
   --input: #10101030;
-  --border-input: #f9f9f930;
+  --border-input: #f9f9f966;
   --ring: #F9F9F9;
+}
+
+/* In dark mode, make all visual shadows white-ish for better contrast. */
+.dark :is(
+  .shadow-xs,
+  .shadow-sm,
+  .shadow,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl,
+  [class*="shadow-black-"]
+) {
+  --tw-shadow-color: rgb(148 163 184 / 0.18);
+}
+
+.dark :is(
+  .text-shadow-xs,
+  .text-shadow-sm,
+  .text-shadow,
+  .text-shadow-md,
+  .text-shadow-lg,
+  .text-shadow-xl,
+  .text-shadow-2xl,
+  [class*="text-shadow-black-"]
+) {
+  --tw-text-shadow-color: rgb(148 163 184 / 0.24);
 }
 
 @layer base {
