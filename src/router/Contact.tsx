@@ -21,13 +21,13 @@ const Contact = () => {
                             <Link to="https://www.linkedin.com/in/arthur-henrique-072354303/">
                                 <LinkedinLogoIcon className='text-shadow-lg hover:bg-[#101010]/10 w-6 h-6 p-0.5 rounded-full transition duration-200 delay-200' />
                             </Link>
-                            <Link to="https://www.linkedin.com/in/arthur-henrique-072354303/">
+                            <Link to="https://github.com/oficialThur">
                                 <GithubLogoIcon className='text-shadow-lg hover:bg-[#101010]/10 w-6 h-6 p-0.5 rounded-full transition duration-200 delay-200' />
                             </Link>
-                            <Link to="https://www.linkedin.com/in/arthur-henrique-072354303/">
+                            <Link to="https://www.instagram.com/dev_thur/">
                                 <InstagramLogoIcon className='text-shadow-lg hover:bg-[#101010]/10 w-6 h-6 p-0.5 rounded-full transition duration-200 delay-200' />
                             </Link>
-                            <Link to="https://www.linkedin.com/in/arthur-henrique-072354303/">
+                            <Link to="https://wa.me/5531975444750">
                                 <WhatsappLogoIcon className='text-shadow-lg hover:bg-[#101010]/10 w-6 h-6 p-0.5 rounded-full transition duration-200 delay-200' />
                             </Link>
                         </ul>

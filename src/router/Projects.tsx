@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useState } from "react"
 import cloudInfraBg from "../../assets/image/Screenshot 2026-03-30 at 13-38-34 Cloud Infra.png"
+import QRcodeBg from "../../assets/image/CodeQR.png"
+import ExDommusBg from "../../assets/image/Screenshot 2026-03-30 at 14-19-10 CRM Imobiliário Dommus tecnologia para vender mais e melhor.png"
 
 const Projects = () => {
 
@@ -10,10 +12,24 @@ const Projects = () => {
     {
       id: 1,
       background: cloudInfraBg,
-      title: 'Landing page para um projeto de escola ',
-      description: 'Uma landing page para um trabalho de escola, onde utilizo minhas habilidades de design e desenvolvimento frontend Em react e css simples.',
-      link: '',
+      title: 'Landing page em React',
+      description: 'Uma landing page para um trabalho de escola, onde utilizo minhas habilidades frontend em react e css simples.',
+      link: 'https://github.com/oficialThur/Cloudinfra-project',
     },
+    {
+      id: 2,
+      background: QRcodeBg,
+      title: 'Simples gerador de QR code',
+      description: 'Um simples gerador de QR code como c# feito na aula do professor Daniel de POO.',
+      link: 'https://github.com/oficialThur/QrcodeGenereitor',
+    },
+    {
+      id: 3,
+      background: ExDommusBg,
+      title: 'Todos os exercícios da Dommus tecnologia',
+      description: 'Nesse repositório você encontrará todos os exercícios desenvolvidos durante o meu tempo na como estagiário na Dommus tecnologia.',
+      link: 'https://github.com/oficialThur/Ex_Dommus',
+    }
   ]);
 
   return (
@@ -45,7 +61,7 @@ const Projects = () => {
           <div className="shadow-lg shadow-black-100 border border-input rounded-lg w-full flex justify-center items-center md:row-span-3 p-1">
             <div className="w-full h-80 max-h-80 flex justify-center items-center rounded-lg inset-shadow-sm inset-shadow-black-900 gap-1">
               <p className="text-shadow-lg text-shadow-black-100">Para mais projetos me siga no</p>
-              <Link to="https://www.linkedin.com/in/arthur-henrique-072354303/">
+              <Link to="https://github.com/oficialThur">
                 <GithubLogoIcon className='w-5 h-5 text-shadow-lg text-shadow-black-100 shadow-black-900 hover:bg-[#101010]/10 p-0.5 rounded-full transition duration-200 delay-200' />
               </Link>
             </div>
