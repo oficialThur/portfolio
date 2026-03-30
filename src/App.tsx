@@ -7,30 +7,9 @@ import { routePaths } from './Main'
 import gsap from 'gsap'
 
 function getAnimationTargets(container: HTMLElement) {
-  const selectors = [
-    'section',
-    'header',
-    'article',
-    'form',
-    'h1',
-    'h2',
-    'h3',
-    'p',
-    'time',
-    'button',
-    'a',
-    'input',
-    'textarea',
-    'label',
-    'li',
-    '[data-slot]'
-  ].join(',')
-
-  const nodes = Array.from(container.querySelectorAll<HTMLElement>(selectors))
-
-  if (nodes.length) return nodes
-
-  return Array.from(container.children) as HTMLElement[]
+  // Animate only the rendered page roots to avoid nested transform conflicts.
+  const nodes = Array.from(container.children) as HTMLElement[]
+  return nodes.length ? nodes : [container]
 }
 
 const App = () => {

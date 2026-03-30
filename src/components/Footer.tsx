@@ -180,9 +180,6 @@ const Footer = () => {
             </FormItem>
           )} />
 
-          
-
-
           <Button type="submit" disabled={isSubmitting} className="mt-4 shadow-lg shadow-black-100">
             {isSubmitting ? 'Enviando...' : 'Enviar'}
           </Button>
@@ -193,3 +190,5 @@ const Footer = () => {
 }
 
 export default Footer
+          
+

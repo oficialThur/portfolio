@@ -14,6 +14,7 @@ import {
 
 const Nav = () => {
   const navRef = useRef<HTMLElement>(null)
+  const hasMountedRef = useRef(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -28,15 +29,36 @@ const Nav = () => {
 
   useEffect(() => {
     const root = document.documentElement
+    let timeoutId: number | undefined
+
+    if (hasMountedRef.current) {
+      root.classList.add('theme-transition')
+      timeoutId = window.setTimeout(() => {
+        root.classList.remove('theme-transition')
+      }, 500)
+    }
 
     if (isDarkMode) {
       root.classList.add('dark')
       window.localStorage.setItem('theme', 'dark')
-      return
+      hasMountedRef.current = true
+      return () => {
+        if (timeoutId !== undefined) {
+          window.clearTimeout(timeoutId)
+        }
+      }
     }
 
     root.classList.remove('dark')
     window.localStorage.setItem('theme', 'light')
+
+    hasMountedRef.current = true
+
+    return () => {
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId)
+      }
+    }
   }, [isDarkMode])
 
   useEffect(() => {
