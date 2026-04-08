@@ -1,6 +1,7 @@
 
 import { useEffect, useRef } from "react"
 import gsap from "gsap"
+import profileImage from "../../assets/image/link.jpeg"
 
 const Home = () => {
   const photoContainerRef = useRef<HTMLDivElement | null>(null)
@@ -67,7 +68,7 @@ const Home = () => {
         <div ref={photoContainerRef} className="flex w-full items-center justify-center perspective-[900px] md:h-full">
           <img
             ref={photoRef}
-            src="../../assets/image/link.jpeg"
+            src={profileImage}
             alt="Arthur Henrique"
             className="h-56 w-56 rounded-full object-cover shadow-lg sm:h-64 sm:w-64 md:h-72 md:w-72 lg:h-80 lg:w-80"
           />

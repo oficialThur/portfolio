@@ -25,8 +25,18 @@ if (in_array($origin, $allowed)) {
 }
 
 const CONTACT_EMAIL = 'oficialthurhenrique@gmail.com';
-const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_MIN = 15;
+
+$rateLimitEnabledRaw = $_ENV['RATE_LIMIT_ENABLED'] ?? getenv('RATE_LIMIT_ENABLED') ?: 'true';
+$rateLimitEnabled = filter_var($rateLimitEnabledRaw, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+if ($rateLimitEnabled === null) {
+    $rateLimitEnabled = true;
+}
+
+$rateLimitMaxRaw = $_ENV['RATE_LIMIT_MAX'] ?? getenv('RATE_LIMIT_MAX') ?: '5';
+$rateLimitMax = max(1, (int) $rateLimitMaxRaw);
+
+$rateLimitMinRaw = $_ENV['RATE_LIMIT_MIN'] ?? getenv('RATE_LIMIT_MIN') ?: '15';
+$rateLimitMin = max(1, (int) $rateLimitMinRaw);
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -43,27 +53,28 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-function checkRateLimit(string $ip): bool
+function checkRateLimit(string $ip, int $maxRequests, int $windowMinutes): bool
 {
     $file     = sys_get_temp_dir() . '/rl_' . md5($ip) . '.json';
     $now      = time();
-    $window   = RATE_LIMIT_MIN * 60;
+    $window   = $windowMinutes * 60;
     $requests = file_exists($file)
         ? (json_decode(file_get_contents($file), true) ?? [])
         : [];
 
     $requests = array_filter($requests, fn($t) => ($now - $t) < $window);
 
-    if (count($requests) >= RATE_LIMIT_MAX) return false;
+    if (count($requests) >= $maxRequests) return false;
 
     $requests[] = $now;
     file_put_contents($file, json_encode(array_values($requests)));
     return true;
 }
 
+
 $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
 
-if (!checkRateLimit($clientIp)) {
+if ($rateLimitEnabled && !checkRateLimit($clientIp, $rateLimitMax, $rateLimitMin)) {
     http_response_code(429);
     echo json_encode(['success' => false, 'message' => 'Muitas tentativas. Aguarde alguns minutos.']);
     exit;
@@ -128,18 +139,39 @@ $subject = $isRecruiter
 $mail = new PHPMailer(true);
 $smtpUser = $_ENV['SMTP_USER'] ?? getenv('SMTP_USER') ?: '';
 $smtpPass = $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '';
+$smtpHost = $_ENV['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+$smtpPort = (int) ($_ENV['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: 587);
+$smtpAuthRaw = $_ENV['SMTP_AUTH'] ?? getenv('SMTP_AUTH') ?: 'true';
+$smtpAuth = filter_var($smtpAuthRaw, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+if ($smtpAuth === null) {
+    $smtpAuth = true;
+}
+
+$smtpSecureRaw = strtolower($_ENV['SMTP_SECURE'] ?? getenv('SMTP_SECURE') ?: 'tls');
+$smtpFrom = $_ENV['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: ($smtpUser ?: 'noreply@portfolio.local');
+$smtpFromName = $_ENV['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: 'Portfolio Contact';
 
 try {
     $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';
-    $mail->SMTPAuth   = true;
-    $mail->Username  = $smtpUser;
-    $mail->Password  = $smtpPass;
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = 587;
+    $mail->Host       = $smtpHost;
+    $mail->SMTPAuth   = $smtpAuth;
+    if ($smtpAuth) {
+        $mail->Username = $smtpUser;
+        $mail->Password = $smtpPass;
+    }
+
+    if ($smtpSecureRaw === 'ssl') {
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+    } elseif ($smtpSecureRaw === 'none' || $smtpSecureRaw === '') {
+        $mail->SMTPSecure = false;
+    } else {
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    }
+
+    $mail->Port       = $smtpPort;
     $mail->CharSet   = 'UTF-8';
 
-    $mail->setFrom($smtpUser, 'Portfolio Contact');
+    $mail->setFrom($smtpFrom, $smtpFromName);
     $mail->addAddress(CONTACT_EMAIL);
     $mail->addReplyTo($email, $name);
 
@@ -150,6 +182,7 @@ try {
     $mail->send();
     $sent = true;
 } catch (Exception $e) {
+    error_log('SMTP send error: ' . $e->getMessage());
     $sent = false;
 }
 

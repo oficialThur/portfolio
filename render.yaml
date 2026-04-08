@@ -6,10 +6,29 @@ services:
     dockerContext: ./backend
     plan: free
     autoDeploy: true
+    healthCheckPath: /healthz.php
     envVars:
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_AUTH
+        value: "true"
+      - key: SMTP_SECURE
+        value: tls
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_FROM_NAME
+        value: Portfolio Contact
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASS
         sync: false
       - key: ALLOWED_ORIGINS
         sync: false
+      - key: RATE_LIMIT_ENABLED
+        value: "true"
+      - key: RATE_LIMIT_MAX
+        value: "5"
+      - key: RATE_LIMIT_MIN
+        value: "15"

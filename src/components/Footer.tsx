@@ -10,7 +10,10 @@ import "@/styles/global.css"
 import { Alert, AlertDescription } from "./ui/alert"
 import { CheckCircleIcon, WarningCircleIcon } from "@phosphor-icons/react"
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+const API_URL = (
+  import.meta.env.VITE_API_URL?.trim()
+  || (import.meta.env.PROD ? '/api' : 'http://localhost:8080')
+).replace(/\/$/, '')
 
 const Footer = () => {
 
