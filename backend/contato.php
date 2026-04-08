@@ -202,7 +202,8 @@ $smtpFrom = $_ENV['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: ($smtpUser ?: 'noreply@
 $smtpFromName = $_ENV['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: 'Portfolio Contact';
 $mailTransport = strtolower($_ENV['MAIL_TRANSPORT'] ?? getenv('MAIL_TRANSPORT') ?: 'auto');
 $resendApiKey = $_ENV['RESEND_API_KEY'] ?? getenv('RESEND_API_KEY') ?: '';
-$fromHeader = sprintf('%s <%s>', $smtpFromName, $smtpFrom);
+$resendFrom = $_ENV['RESEND_FROM'] ?? getenv('RESEND_FROM') ?: $smtpFrom;
+$fromHeader = sprintf('%s <%s>', $smtpFromName, $resendFrom);
 
 if ($smtpAuth && ($smtpUser === '' || $smtpPass === '')) {
     if (!($mailTransport === 'resend' || ($mailTransport === 'auto' && $resendApiKey !== ''))) {
