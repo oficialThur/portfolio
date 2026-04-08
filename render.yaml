@@ -23,7 +23,7 @@ services:
       - key: SMTP_FROM_NAME
         value: Portfolio Contact
       - key: MAIL_TRANSPORT
-        value: auto
+        value: resend
       - key: RESEND_API_KEY
         sync: false
       - key: SMTP_USER
