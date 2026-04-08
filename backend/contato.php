@@ -6,10 +6,15 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+$dotenv->safeLoad();
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$allowed = ['http://localhost:5173', 'http://localhost:5174', 'https://seudominio.com'];
+$allowedOrigins = $_ENV['ALLOWED_ORIGINS'] ?? getenv('ALLOWED_ORIGINS') ?: '';
+$allowed = array_values(array_filter(array_map('trim', explode(',', $allowedOrigins))));
+
+if (empty($allowed)) {
+    $allowed = ['http://localhost:5173', 'http://localhost:5174'];
+}
 
 if (in_array($origin, $allowed)) {
     header('Access-Control-Allow-Origin: ' . $origin);
@@ -121,18 +126,20 @@ $subject = $isRecruiter
     ? "[Recrutador] Nova mensagem de $name"
     : "[Contato] Nova mensagem de $name";
 $mail = new PHPMailer(true);
+$smtpUser = $_ENV['SMTP_USER'] ?? getenv('SMTP_USER') ?: '';
+$smtpPass = $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '';
 
 try {
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
-    $mail->Username  = $_ENV['SMTP_USER'];
-    $mail->Password  = $_ENV['SMTP_PASS'];
+    $mail->Username  = $smtpUser;
+    $mail->Password  = $smtpPass;
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
     $mail->CharSet   = 'UTF-8';
 
-    $mail->setFrom('noreply@seudominio.com', 'Portfolio Contact');
+    $mail->setFrom($smtpUser, 'Portfolio Contact');
     $mail->addAddress(CONTACT_EMAIL);
     $mail->addReplyTo($email, $name);
 
