@@ -46,9 +46,9 @@ const Projects = () => {
                 style={{ backgroundImage: `url(${project.background})` }}
               >
                 <div className="absolute inset-0 bg-linear-to-r from-black/75 via-black/40 to-transparent" />
-                <div className="relative z-10 w-[50%] max-w-[50%] h-1/2 max-h-1/2 p-3 text-white flex flex-col overflow-hidden">
+                <div className="relative z-10 w-[50%] max-w-[50%] h-1/2 max-h-1/2 p-3 text-white flex flex-col overflow-hidden min-w-0">
                   <h3 className="text-shadow-lg text-shadow-black-100">{project.title}</h3>
-                  <p className="py-2.5 text-shadow-lg overflow-y-auto grow pr-1">{project.description}</p>
+                  <p className="py-2.5 text-shadow-lg grow pr-1 overflow-hidden overflow-x-hidden wrap-break-word whitespace-normal leading-snug text-sm md:text-base">{project.description}</p>
                   <Link to={project.link} className="mt-2 shrink-0">
                     <Button className="shadow-lg shadow-black-100">
                       Ver
