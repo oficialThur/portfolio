@@ -9,20 +9,20 @@ const Study = () => {
         { 
             id: 1, icon: <PlayIcon size={15} />, 
             data: '3 de Janeiro de 2023', 
-            title: 'Primeiro ano no cotemig', 
-            text: 'O inicio da minha jonada começou aqui, 1º ano do encino medio tecnico no cotemig.' 
+            title: 'Primeiro ano no Cotemig', 
+            text: 'O início da minha jornada começou aqui: 1º ano do ensino médio técnico no Cotemig.' 
         },
         {
             id: 2, icon: <PlayIcon size={15} />,
             data: '9 de Dezembro de 2025',
-            title: 'Minha formatura no cotemig',
-            text: 'O fim do meu ciclo com estudante do encino medio tecnico no cotemig, completei os 3º anos com excelência.'
+            title: 'Minha formatura no Cotemig',
+            text: 'Foi o fim do meu ciclo como estudante do ensino médio técnico no Cotemig. Completei os 3 anos com excelência.'
         },
         {
             id: 3, icon: <PlayIcon size={15} />,
             data: '9 de Dezembro de 2025',
-            title: 'Inicio Na Dommus tecnologia',
-            text: 'No mesmo dia da formatura dei o primeiro passo na minha carreira na Dommus tecnologia como estagiário de desenvolvimento usando PHP, Laravel, JS, React, Angular, JQuery e MySQL.'
+            title: 'Início na Dommus Tecnologia',
+            text: 'No mesmo dia da formatura, dei o primeiro passo na minha carreira na Dommus Tecnologia como estagiário de desenvolvimento, usando PHP, Laravel, JavaScript, React, Angular, jQuery e MySQL.'
         },
         {
             id: 4, icon: <PlayIcon size={15} />,
@@ -32,9 +32,9 @@ const Study = () => {
         },
         {
             id: 5, icon: <PlayIcon size={15} />,
-            data: '26 de Março de 2026',
-            title: 'Ultimo dia na Dommus tecnologia',
-            text: 'Meu ultimo dia na Dommus tecnologia, onde desenvolvi minhas habilidades e conhecimentos em desenvolvimento web e aonde tenho muito a agradecer ao Bruno, Samuel, Miguel, Egydio e Mireli meus orientador e quem muito me ajudaram nessa jornada. OBRIGADO!'
+            data: '26 de março de 2026',
+            title: 'Último dia na Dommus Tecnologia',
+            text: 'Meu último dia na Dommus Tecnologia, onde desenvolvi minhas habilidades e conhecimentos em desenvolvimento web. Tenho muito a agradecer ao Bruno, Samuel, Miguel, Egydio e Mireli, meus orientadores, que me ajudaram muito nessa jornada. Obrigado!'
         },
     ]);
 

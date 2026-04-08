@@ -13,21 +13,21 @@ const Projects = () => {
       id: 1,
       background: cloudInfraBg,
       title: 'Landing page em React',
-      description: 'Uma landing page para um trabalho de escola, onde utilizo minhas habilidades frontend em react e css simples.',
+      description: 'Uma landing page para um trabalho escolar, em que utilizo minhas habilidades de frontend com React e CSS.',
       link: 'https://github.com/oficialThur/Cloudinfra-project',
     },
     {
       id: 2,
       background: QRcodeBg,
       title: 'Simples gerador de QR code',
-      description: 'Um simples gerador de QR code como c# feito na aula do professor Daniel de POO.',
+      description: 'Um gerador simples de QR Code em C#, feito na aula de POO do professor Daniel.',
       link: 'https://github.com/oficialThur/QrcodeGenereitor',
     },
     {
       id: 3,
       background: ExDommusBg,
-      title: 'Todos os exercícios da Dommus tecnologia',
-      description: 'Nesse repositório você encontrará todos os exercícios desenvolvidos durante o meu tempo na como estagiário na Dommus tecnologia.',
+      title: 'Todos os exercícios da Dommus Tecnologia',
+      description: 'Neste repositório, você encontrará todos os exercícios desenvolvidos durante meu período como estagiário na Dommus Tecnologia.',
       link: 'https://github.com/oficialThur/Ex_Dommus',
     }
   ]);
@@ -51,7 +51,7 @@ const Projects = () => {
                   <p className="py-2.5 text-shadow-lg">{project.description}</p>
                   <Link to={project.link}>
                     <Button className="shadow-lg shadow-black-100">
-                      veja
+                      Ver
                     </Button>
                   </Link>
                 </div>
@@ -60,7 +60,7 @@ const Projects = () => {
           ))}          
           <div className="shadow-lg shadow-black-100 border border-input rounded-lg w-full flex justify-center items-center md:row-span-3 p-1">
             <div className="w-full h-80 max-h-80 flex justify-center items-center rounded-lg inset-shadow-sm inset-shadow-black-900 gap-1">
-              <p className="text-shadow-lg text-shadow-black-100">Para mais projetos me siga no</p>
+              <p className="text-shadow-lg text-shadow-black-100">Para ver mais projetos, siga-me no</p>
               <Link to="https://github.com/oficialThur">
                 <GithubLogoIcon className='w-5 h-5 text-shadow-lg text-shadow-black-100 shadow-black-900 hover:bg-[#101010]/10 p-0.5 rounded-full transition duration-200 delay-200' />
               </Link>

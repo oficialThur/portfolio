@@ -108,7 +108,7 @@ const Nav = () => {
       </h1>
       <DropdownMenu onOpenChange={setIsMenuOpen}>
         <DropdownMenuTrigger asChild>
-          <Button data-nav-fade className='w-32 shadow-lg shadow-black-100 dark:border dark:border-border dark:bg-white/5' variant="outline">Open</Button>
+          <Button data-nav-fade className='w-32 shadow-lg shadow-black-100 dark:border dark:border-border dark:bg-white/5' variant="outline">Abrir</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" data-nav-dropdown-content>
           <DropdownMenuGroup>

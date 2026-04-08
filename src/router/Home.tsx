@@ -59,7 +59,7 @@ const Home = () => {
       <section className="flex min-h-screen flex-col-reverse items-center justify-center gap-8 py-8 md:flex-row md:gap-0 md:py-0">
         <div className="flex w-full flex-col items-center justify-center p-4 md:h-full md:p-30">
           <h2 className="mb-4 text-center text-shadow-lg text-shadow-black-100">
-            Ola me chamo Arthur Henrique, é sou um Desenvolvedor.
+            Olá, me chamo Arthur Henrique e sou desenvolvedor.
           </h2>
           <p className="text-center text-shadow-lg text-shadow-black-100">
             <strong>Desenvolvedor Web</strong> focado no <strong>Frontend</strong>, com paixão por criar interfaces de usuário intuitivas e de alto desempenho. Atuo como <strong>Product Developer</strong>, trazendo uma visão completa para o desenvolvimento de soluções robustas.

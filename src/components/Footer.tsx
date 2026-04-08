@@ -22,7 +22,7 @@ const Footer = () => {
     email: z.string().email("E-mail inválido"),
     message: z.string()
       .min(10, "A mensagem deve ter pelo menos 10 caracteres")
-      .max(700, "A mensagem muito longa, o limite é de 700 caracteres"),
+      .max(700, "A mensagem está muito longa; o limite é de 700 caracteres"),
     isRecruiter: z.boolean(),
   })
 
@@ -121,10 +121,10 @@ const Footer = () => {
           <FormField control={form.control} name="email" render={({ field }) => (
             <FormItem className="w-full mt-4">
               <FormLabel>
-                <p className="text-shadow-lg text-shadow-black-100">Email</p>
+                <p className="text-shadow-lg text-shadow-black-100">E-mail</p>
               </FormLabel>
               <FormControl>
-                <Input {...field} type="email" className="bg-input border-input shadow-lg shadow-black-100" placeholder="Digite seu email" />
+                <Input {...field} type="email" className="bg-input border-input shadow-lg shadow-black-100" placeholder="Digite seu e-mail" />
               </FormControl>
               <FormDescription className="text-(--border-input)">
                 <p>Digite seu endereço de e-mail</p>
