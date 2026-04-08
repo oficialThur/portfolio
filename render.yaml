@@ -2,11 +2,11 @@ services:
   - type: web
     name: portfolio-backend
     env: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
     plan: free
     autoDeploy: true
-    healthCheckPath: ./backend/healthz.php
+    healthCheckPath: /healthz.php
     envVars:
       - key: SMTP_HOST
         value: smtp.gmail.com
