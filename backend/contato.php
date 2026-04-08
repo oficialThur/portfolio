@@ -179,7 +179,6 @@ try {
 
     $mail->Port       = $smtpPort;
     $mail->Timeout    = $smtpTimeout;
-    $mail->getSMTPInstance()->Timelimit = $smtpTimeout;
     $mail->CharSet   = 'UTF-8';
 
     $mail->setFrom($smtpFrom, $smtpFromName);
@@ -192,7 +191,7 @@ try {
 
     $mail->send();
     $sent = true;
-} catch (Exception $e) {
+} catch (Throwable $e) {
     error_log('SMTP send error: ' . $e->getMessage());
     $sent = false;
 }
