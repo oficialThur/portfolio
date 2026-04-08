@@ -147,9 +147,18 @@ if ($smtpAuth === null) {
     $smtpAuth = true;
 }
 
+$smtpTimeoutRaw = $_ENV['SMTP_TIMEOUT'] ?? getenv('SMTP_TIMEOUT') ?: '20';
+$smtpTimeout = max(5, (int) $smtpTimeoutRaw);
+
 $smtpSecureRaw = strtolower($_ENV['SMTP_SECURE'] ?? getenv('SMTP_SECURE') ?: 'tls');
 $smtpFrom = $_ENV['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: ($smtpUser ?: 'noreply@portfolio.local');
 $smtpFromName = $_ENV['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: 'Portfolio Contact';
+
+if ($smtpAuth && ($smtpUser === '' || $smtpPass === '')) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Configuração SMTP incompleta.']);
+    exit;
+}
 
 try {
     $mail->isSMTP();
@@ -169,6 +178,8 @@ try {
     }
 
     $mail->Port       = $smtpPort;
+    $mail->Timeout    = $smtpTimeout;
+    $mail->Timelimit  = $smtpTimeout;
     $mail->CharSet   = 'UTF-8';
 
     $mail->setFrom($smtpFrom, $smtpFromName);
