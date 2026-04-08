@@ -32,8 +32,13 @@ backend/.env.*
 *.sln
 *.sw?
 Dockerfile*
+!Dockerfile
+!Dockerfile.frontend
+!backend/Dockerfile
 .dockerignore
 docker-compose*
+!docker-compose.yaml
+!docker-compose.prod.yaml
 Form.md*
 backend/vendor/
 .vscode/mcp.json
