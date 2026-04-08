@@ -18,6 +18,8 @@ services:
         value: tls
       - key: SMTP_TIMEOUT
         value: "20"
+      - key: MAIL_MAX_SECONDS
+        value: "10"
       - key: SMTP_FROM
         sync: false
       - key: SMTP_FROM_NAME

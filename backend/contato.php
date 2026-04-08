@@ -77,7 +77,8 @@ function sendWithResend(
     string $to,
     string $replyTo,
     string $subject,
-    string $textBody
+    string $textBody,
+    int $timeoutSeconds
 ): array {
     if ($apiKey === '') {
         return ['success' => false, 'error' => 'RESEND_API_KEY ausente'];
@@ -96,7 +97,7 @@ function sendWithResend(
             'method' => 'POST',
             'header' => "Authorization: Bearer {$apiKey}\r\nContent-Type: application/json\r\n",
             'content' => json_encode($payload, JSON_UNESCAPED_UNICODE),
-            'timeout' => 12,
+            'timeout' => max(3, min(9, $timeoutSeconds)),
             'ignore_errors' => true,
         ],
     ]);
@@ -195,13 +196,20 @@ if ($smtpAuth === null) {
 
 $smtpTimeoutRaw = $_ENV['SMTP_TIMEOUT'] ?? getenv('SMTP_TIMEOUT') ?: '20';
 $smtpTimeout = max(5, (int) $smtpTimeoutRaw);
+$mailMaxSecondsRaw = $_ENV['MAIL_MAX_SECONDS'] ?? getenv('MAIL_MAX_SECONDS') ?: '10';
+$mailMaxSeconds = max(5, min(20, (int) $mailMaxSecondsRaw));
 $attemptTimeout = min($smtpTimeout, 8);
+$mailStart = microtime(true);
 
 $smtpSecureRaw = strtolower($_ENV['SMTP_SECURE'] ?? getenv('SMTP_SECURE') ?: 'tls');
 $smtpFrom = $_ENV['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: ($smtpUser ?: 'noreply@portfolio.local');
 $smtpFromName = $_ENV['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: 'Portfolio Contact';
 $mailTransport = strtolower($_ENV['MAIL_TRANSPORT'] ?? getenv('MAIL_TRANSPORT') ?: 'auto');
-$resendApiKey = $_ENV['RESEND_API_KEY'] ?? getenv('RESEND_API_KEY') ?: '';
+$resendApiKey = $_ENV['RESEND_API_KEY']
+    ?? getenv('RESEND_API_KEY')
+    ?? $_ENV['RESEND_API_KE']
+    ?? getenv('RESEND_API_KE')
+    ?: '';
 $resendFrom = $_ENV['RESEND_FROM'] ?? getenv('RESEND_FROM') ?: $smtpFrom;
 $fromHeader = sprintf('%s <%s>', $smtpFromName, $resendFrom);
 
@@ -217,13 +225,18 @@ $sent = false;
 $lastError = null;
 
 if ($mailTransport === 'resend' || ($mailTransport === 'auto' && $resendApiKey !== '')) {
+    $elapsed = microtime(true) - $mailStart;
+    $remaining = (int) floor($mailMaxSeconds - $elapsed);
+    $resendTimeout = max(3, min(9, $remaining > 0 ? $remaining : 3));
+
     $resendResult = sendWithResend(
         $resendApiKey,
         $fromHeader,
         CONTACT_EMAIL,
         $email,
         $subject,
-        $emailBody
+        $emailBody,
+        $resendTimeout
     );
 
     if ($resendResult['success']) {
@@ -268,6 +281,22 @@ if (!in_array(['ssl', 465], $smtpAttempts, true)) {
 
 foreach ($smtpHosts as $attemptHost) {
     foreach ($smtpAttempts as [$attemptSecure, $attemptPort]) {
+        $elapsed = microtime(true) - $mailStart;
+        if ($elapsed >= $mailMaxSeconds) {
+            $lastError = 'Tempo limite total de envio excedido';
+            error_log('SMTP time budget exhausted before next attempt');
+            break 2;
+        }
+
+        $remainingSeconds = (int) floor($mailMaxSeconds - $elapsed);
+        if ($remainingSeconds <= 1) {
+            $lastError = 'Tempo limite total de envio excedido';
+            error_log('SMTP time budget too low to continue attempts');
+            break 2;
+        }
+
+        $attemptTimeoutNow = max(2, min($attemptTimeout, $remainingSeconds));
+
         try {
             $mail = new PHPMailer(true);
             $mail->isSMTP();
@@ -275,7 +304,7 @@ foreach ($smtpHosts as $attemptHost) {
             $mail->Port = (int) $attemptPort;
             $mail->SMTPAuth = $smtpAuth;
             $mail->SMTPAutoTLS = ($attemptSecure !== 'none' && $attemptSecure !== '');
-            $mail->Timeout = $attemptTimeout;
+            $mail->Timeout = $attemptTimeoutNow;
             $mail->CharSet = 'UTF-8';
 
             if ($smtpAuth) {
@@ -310,7 +339,7 @@ foreach ($smtpHosts as $attemptHost) {
                 (int) $attemptPort,
                 (string) $attemptSecure,
                 $smtpAuth ? 'true' : 'false',
-                $attemptTimeout,
+                $attemptTimeoutNow,
                 $lastError
             ));
         }
