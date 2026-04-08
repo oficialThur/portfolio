@@ -179,7 +179,7 @@ try {
 
     $mail->Port       = $smtpPort;
     $mail->Timeout    = $smtpTimeout;
-    $mail->Timelimit  = $smtpTimeout;
+    $mail->getSMTPInstance()->Timelimit = $smtpTimeout;
     $mail->CharSet   = 'UTF-8';
 
     $mail->setFrom($smtpFrom, $smtpFromName);
