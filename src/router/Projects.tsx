@@ -1,12 +1,14 @@
 import { GithubLogoIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import gsap from "gsap"
 import cloudInfraBg from "../../assets/image/Screenshot 2026-03-30 at 13-38-34 Cloud Infra.png"
 import QRcodeBg from "../../assets/image/CodeQR.png"
 import ExDommusBg from "../../assets/image/Screenshot 2026-03-30 at 14-19-10 CRM Imobiliário Dommus tecnologia para vender mais e melhor.png"
 
 const Projects = () => {
+  const marqueeRefs = useRef<Array<HTMLDivElement | null>>([])
 
   const [projects] = useState([
     {
@@ -32,6 +34,30 @@ const Projects = () => {
     }
   ]);
 
+  useEffect(() => {
+    const animations = marqueeRefs.current.map((marquee) => {
+      if (!marquee) return null
+
+      const distance = marquee.scrollWidth / 2
+      if (distance <= 0) return null
+
+      return gsap.fromTo(
+        marquee,
+        { x: 0 },
+        {
+          x: -distance,
+          duration: 14,
+          repeat: -1,
+          ease: 'none',
+        }
+      )
+    })
+
+    return () => {
+      animations.forEach((animation) => animation?.kill())
+    }
+  }, [projects])
+
   return (
     <div className=" container h-screen">
       <section className="w-full flex flex-col justify-center p-2 md:p-30 gap-10 pb-10">
@@ -46,9 +72,19 @@ const Projects = () => {
                 style={{ backgroundImage: `url(${project.background})` }}
               >
                 <div className="absolute inset-0 bg-linear-to-r from-black/75 via-black/40 to-transparent" />
-                <div className="relative z-10 w-[50%] max-w-[50%] h-1/2 max-h-1/2 p-3 text-white flex flex-col overflow-hidden min-w-0">
+                <div className="relative z-10 w-[65%] max-w-[65%] p-3 text-white flex flex-col overflow-hidden min-w-0">
                   <h3 className="text-shadow-lg text-shadow-black-100">{project.title}</h3>
-                  <p className="py-2.5 text-shadow-lg grow pr-1 overflow-hidden overflow-x-hidden wrap-break-word whitespace-normal leading-snug text-sm md:text-base">{project.description}</p>
+                  <div className="py-2.5 overflow-hidden">
+                    <div
+                      ref={(element) => {
+                        marqueeRefs.current[project.id] = element
+                      }}
+                      className="flex w-max gap-10 pr-10 whitespace-nowrap"
+                    >
+                      <span className="text-shadow-lg text-sm md:text-base">{project.description}</span>
+                      <span aria-hidden="true" className="text-shadow-lg text-sm md:text-base">{project.description}</span>
+                    </div>
+                  </div>
                   <Link to={project.link} className="mt-2 shrink-0">
                     <Button className="shadow-lg shadow-black-100">
                       Ver
