@@ -136,7 +136,6 @@ $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 $subject = $isRecruiter
     ? "[Recrutador] Nova mensagem de $name"
     : "[Contato] Nova mensagem de $name";
-$mail = new PHPMailer(true);
 $smtpUser = $_ENV['SMTP_USER'] ?? getenv('SMTP_USER') ?: '';
 $smtpPass = $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '';
 $smtpHost = $_ENV['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: 'smtp.gmail.com';
@@ -160,44 +159,65 @@ if ($smtpAuth && ($smtpUser === '' || $smtpPass === '')) {
     exit;
 }
 
-try {
-    $mail->isSMTP();
-    $mail->Host       = $smtpHost;
-    $mail->SMTPAuth   = $smtpAuth;
-    if ($smtpAuth) {
-        $mail->Username = $smtpUser;
-        $mail->Password = $smtpPass;
+$sent = false;
+$lastError = null;
+$smtpAttempts = [[$smtpSecureRaw, $smtpPort]];
+
+if ($smtpSecureRaw === 'tls' && $smtpPort === 587) {
+    $smtpAttempts[] = ['ssl', 465];
+}
+
+foreach ($smtpAttempts as [$attemptSecure, $attemptPort]) {
+    try {
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = $smtpHost;
+        $mail->Port = (int) $attemptPort;
+        $mail->SMTPAuth = $smtpAuth;
+        $mail->SMTPAutoTLS = ($attemptSecure !== 'none' && $attemptSecure !== '');
+        $mail->Timeout = $smtpTimeout;
+        $mail->CharSet = 'UTF-8';
+
+        if ($smtpAuth) {
+            $mail->Username = $smtpUser;
+            $mail->Password = $smtpPass;
+        }
+
+        if ($attemptSecure === 'ssl') {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        } elseif ($attemptSecure === 'none' || $attemptSecure === '') {
+            $mail->SMTPSecure = false;
+        } else {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        }
+
+        $mail->setFrom($smtpFrom, $smtpFromName);
+        $mail->addAddress(CONTACT_EMAIL);
+        $mail->addReplyTo($email, $name);
+
+        $mail->isHTML(false);
+        $mail->Subject = $subject;
+        $mail->Body = $emailBody;
+
+        $mail->send();
+        $sent = true;
+        break;
+    } catch (Throwable $e) {
+        $lastError = $e->getMessage();
+        error_log(sprintf(
+            'SMTP send error host=%s port=%d secure=%s auth=%s: %s',
+            $smtpHost,
+            (int) $attemptPort,
+            (string) $attemptSecure,
+            $smtpAuth ? 'true' : 'false',
+            $lastError
+        ));
     }
-
-    if ($smtpSecureRaw === 'ssl') {
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-    } elseif ($smtpSecureRaw === 'none' || $smtpSecureRaw === '') {
-        $mail->SMTPSecure = false;
-    } else {
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    }
-
-    $mail->Port       = $smtpPort;
-    $mail->Timeout    = $smtpTimeout;
-    $mail->CharSet   = 'UTF-8';
-
-    $mail->setFrom($smtpFrom, $smtpFromName);
-    $mail->addAddress(CONTACT_EMAIL);
-    $mail->addReplyTo($email, $name);
-
-    $mail->isHTML(false);
-    $mail->Subject = $subject;
-    $mail->Body    = $emailBody;
-
-    $mail->send();
-    $sent = true;
-} catch (Throwable $e) {
-    error_log('SMTP send error: ' . $e->getMessage());
-    $sent = false;
 }
 
 if (!$sent) {
     http_response_code(500);
+    error_log('SMTP final failure: ' . ($lastError ?? 'unknown error'));
     echo json_encode(['success' => false, 'message' => 'Falha ao enviar e-mail. Tente novamente.']);
     exit;
 }

@@ -9,7 +9,7 @@ FROM php:8.3-cli-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache oniguruma-dev \
+RUN apk add --no-cache ca-certificates oniguruma-dev \
     && docker-php-ext-install mbstring
 
 COPY --from=vendor /app/vendor ./vendor
