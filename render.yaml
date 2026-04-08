@@ -6,7 +6,7 @@ services:
     dockerContext: ./backend
     plan: free
     autoDeploy: true
-    healthCheckPath: /healthz.php
+    healthCheckPath: ./backend/healthz.php
     envVars:
       - key: SMTP_HOST
         value: smtp.gmail.com
