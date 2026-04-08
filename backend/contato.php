@@ -148,6 +148,7 @@ if ($smtpAuth === null) {
 
 $smtpTimeoutRaw = $_ENV['SMTP_TIMEOUT'] ?? getenv('SMTP_TIMEOUT') ?: '20';
 $smtpTimeout = max(5, (int) $smtpTimeoutRaw);
+$attemptTimeout = min($smtpTimeout, 8);
 
 $smtpSecureRaw = strtolower($_ENV['SMTP_SECURE'] ?? getenv('SMTP_SECURE') ?: 'tls');
 $smtpFrom = $_ENV['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: ($smtpUser ?: 'noreply@portfolio.local');
@@ -161,57 +162,74 @@ if ($smtpAuth && ($smtpUser === '' || $smtpPass === '')) {
 
 $sent = false;
 $lastError = null;
+$smtpHosts = [$smtpHost];
+$smtpHostIpv4 = gethostbyname($smtpHost);
+if ($smtpHostIpv4 !== $smtpHost && filter_var($smtpHostIpv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+    $smtpHosts[] = $smtpHostIpv4;
+}
+
 $smtpAttempts = [[$smtpSecureRaw, $smtpPort]];
 
 if ($smtpSecureRaw === 'tls' && $smtpPort === 587) {
     $smtpAttempts[] = ['ssl', 465];
 }
 
-foreach ($smtpAttempts as [$attemptSecure, $attemptPort]) {
-    try {
-        $mail = new PHPMailer(true);
-        $mail->isSMTP();
-        $mail->Host = $smtpHost;
-        $mail->Port = (int) $attemptPort;
-        $mail->SMTPAuth = $smtpAuth;
-        $mail->SMTPAutoTLS = ($attemptSecure !== 'none' && $attemptSecure !== '');
-        $mail->Timeout = $smtpTimeout;
-        $mail->CharSet = 'UTF-8';
+if (!in_array(['tls', 587], $smtpAttempts, true)) {
+    $smtpAttempts[] = ['tls', 587];
+}
 
-        if ($smtpAuth) {
-            $mail->Username = $smtpUser;
-            $mail->Password = $smtpPass;
+if (!in_array(['ssl', 465], $smtpAttempts, true)) {
+    $smtpAttempts[] = ['ssl', 465];
+}
+
+foreach ($smtpHosts as $attemptHost) {
+    foreach ($smtpAttempts as [$attemptSecure, $attemptPort]) {
+        try {
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host = $attemptHost;
+            $mail->Port = (int) $attemptPort;
+            $mail->SMTPAuth = $smtpAuth;
+            $mail->SMTPAutoTLS = ($attemptSecure !== 'none' && $attemptSecure !== '');
+            $mail->Timeout = $attemptTimeout;
+            $mail->CharSet = 'UTF-8';
+
+            if ($smtpAuth) {
+                $mail->Username = $smtpUser;
+                $mail->Password = $smtpPass;
+            }
+
+            if ($attemptSecure === 'ssl') {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            } elseif ($attemptSecure === 'none' || $attemptSecure === '') {
+                $mail->SMTPSecure = false;
+            } else {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            }
+
+            $mail->setFrom($smtpFrom, $smtpFromName);
+            $mail->addAddress(CONTACT_EMAIL);
+            $mail->addReplyTo($email, $name);
+
+            $mail->isHTML(false);
+            $mail->Subject = $subject;
+            $mail->Body = $emailBody;
+
+            $mail->send();
+            $sent = true;
+            break 2;
+        } catch (Throwable $e) {
+            $lastError = $e->getMessage();
+            error_log(sprintf(
+                'SMTP send error host=%s port=%d secure=%s auth=%s timeout=%d: %s',
+                $attemptHost,
+                (int) $attemptPort,
+                (string) $attemptSecure,
+                $smtpAuth ? 'true' : 'false',
+                $attemptTimeout,
+                $lastError
+            ));
         }
-
-        if ($attemptSecure === 'ssl') {
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        } elseif ($attemptSecure === 'none' || $attemptSecure === '') {
-            $mail->SMTPSecure = false;
-        } else {
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        }
-
-        $mail->setFrom($smtpFrom, $smtpFromName);
-        $mail->addAddress(CONTACT_EMAIL);
-        $mail->addReplyTo($email, $name);
-
-        $mail->isHTML(false);
-        $mail->Subject = $subject;
-        $mail->Body = $emailBody;
-
-        $mail->send();
-        $sent = true;
-        break;
-    } catch (Throwable $e) {
-        $lastError = $e->getMessage();
-        error_log(sprintf(
-            'SMTP send error host=%s port=%d secure=%s auth=%s: %s',
-            $smtpHost,
-            (int) $attemptPort,
-            (string) $attemptSecure,
-            $smtpAuth ? 'true' : 'false',
-            $lastError
-        ));
     }
 }
 
