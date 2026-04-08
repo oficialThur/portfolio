@@ -71,6 +71,53 @@ function checkRateLimit(string $ip, int $maxRequests, int $windowMinutes): bool
     return true;
 }
 
+function sendWithResend(
+    string $apiKey,
+    string $from,
+    string $to,
+    string $replyTo,
+    string $subject,
+    string $textBody
+): array {
+    if ($apiKey === '') {
+        return ['success' => false, 'error' => 'RESEND_API_KEY ausente'];
+    }
+
+    $payload = [
+        'from' => $from,
+        'to' => [$to],
+        'reply_to' => $replyTo,
+        'subject' => $subject,
+        'text' => $textBody,
+    ];
+
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Authorization: Bearer {$apiKey}\r\nContent-Type: application/json\r\n",
+            'content' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+            'timeout' => 12,
+            'ignore_errors' => true,
+        ],
+    ]);
+
+    $response = @file_get_contents('https://api.resend.com/emails', false, $context);
+    $statusLine = $http_response_header[0] ?? '';
+    $statusCode = preg_match('/HTTP\/\d+(?:\.\d+)?\s+(\d+)/', $statusLine, $m)
+        ? (int) $m[1]
+        : 0;
+
+    if ($statusCode >= 200 && $statusCode < 300) {
+        return ['success' => true, 'error' => null];
+    }
+
+    $responseBody = is_string($response) ? $response : '';
+    return [
+        'success' => false,
+        'error' => 'Resend HTTP ' . $statusCode . ($responseBody !== '' ? ': ' . $responseBody : ''),
+    ];
+}
+
 
 $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
 
@@ -153,15 +200,51 @@ $attemptTimeout = min($smtpTimeout, 8);
 $smtpSecureRaw = strtolower($_ENV['SMTP_SECURE'] ?? getenv('SMTP_SECURE') ?: 'tls');
 $smtpFrom = $_ENV['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: ($smtpUser ?: 'noreply@portfolio.local');
 $smtpFromName = $_ENV['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: 'Portfolio Contact';
+$mailTransport = strtolower($_ENV['MAIL_TRANSPORT'] ?? getenv('MAIL_TRANSPORT') ?: 'auto');
+$resendApiKey = $_ENV['RESEND_API_KEY'] ?? getenv('RESEND_API_KEY') ?: '';
+$fromHeader = sprintf('%s <%s>', $smtpFromName, $smtpFrom);
 
 if ($smtpAuth && ($smtpUser === '' || $smtpPass === '')) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Configuração SMTP incompleta.']);
-    exit;
+    if (!($mailTransport === 'resend' || ($mailTransport === 'auto' && $resendApiKey !== ''))) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Configuração SMTP incompleta.']);
+        exit;
+    }
 }
 
 $sent = false;
 $lastError = null;
+
+if ($mailTransport === 'resend' || ($mailTransport === 'auto' && $resendApiKey !== '')) {
+    $resendResult = sendWithResend(
+        $resendApiKey,
+        $fromHeader,
+        CONTACT_EMAIL,
+        $email,
+        $subject,
+        $emailBody
+    );
+
+    if ($resendResult['success']) {
+        $sent = true;
+    } else {
+        $lastError = $resendResult['error'];
+        error_log('Resend send error: ' . $lastError);
+    }
+}
+
+if ($sent) {
+    http_response_code(200);
+    echo json_encode(['success' => true, 'message' => 'Message sent successfully!']);
+    exit;
+}
+
+if ($mailTransport === 'resend') {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Falha ao enviar e-mail. Tente novamente.']);
+    exit;
+}
+
 $smtpHosts = [$smtpHost];
 $smtpHostIpv4 = gethostbyname($smtpHost);
 if ($smtpHostIpv4 !== $smtpHost && filter_var($smtpHostIpv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {

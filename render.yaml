@@ -22,6 +22,10 @@ services:
         sync: false
       - key: SMTP_FROM_NAME
         value: Portfolio Contact
+      - key: MAIL_TRANSPORT
+        value: auto
+      - key: RESEND_API_KEY
+        sync: false
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASS
