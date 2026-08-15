@@ -132,6 +132,80 @@ components:
     textColor: "{colors.text-muted}"
     typography: "{typography.label-md}"
     transition: opacity 0.2s ease
+  admin-header:
+    backgroundColor: "{colors.background}"
+    textColor: "{colors.text-primary}"
+    typography: "{typography.label-md}"
+    borderBottom: "1px solid {colors.border}"
+    height: 56px
+    padding: "0 {spacing.3}"
+  admin-project-card:
+    backgroundColor: "transparent"
+    textColor: "{colors.text-primary}"
+    typography: "{typography.body-md}"
+    border: "1px solid {colors.border}"
+    rounded: "{rounded.md}"
+    padding: 24px
+  admin-project-card-hover:
+    borderColor: "{colors.text-muted}"
+  admin-dialog:
+    backgroundColor: "{colors.background}"
+    textColor: "{colors.text-primary}"
+    border: "1px solid {colors.border}"
+    rounded: "{rounded.md}"
+    padding: 32px
+  admin-input:
+    backgroundColor: "transparent"
+    textColor: "{colors.text-primary}"
+    typography: "{typography.body-md}"
+    border: "1px solid {colors.border}"
+    rounded: "{rounded.md}"
+    padding: "10px 14px"
+    height: 44px
+  admin-input-focus:
+    borderColor: "{colors.text-muted}"
+  admin-button-primary:
+    backgroundColor: "{colors.white}"
+    textColor: "{colors.ink}"
+    typography: "{typography.label-md}"
+    rounded: "{rounded.md}"
+    padding: "10px 20px"
+    height: 40px
+  admin-button-ghost:
+    backgroundColor: "transparent"
+    textColor: "{colors.text-muted}"
+    typography: "{typography.label-md}"
+    border: "1px solid {colors.border}"
+    rounded: "{rounded.md}"
+    padding: "10px 20px"
+    height: 40px
+  admin-button-danger:
+    backgroundColor: "transparent"
+    textColor: "#EF4444"
+    typography: "{typography.label-md}"
+    border: "1px solid #EF4444"
+    rounded: "{rounded.md}"
+    padding: "10px 20px"
+    height: 40px
+  admin-badge-tech:
+    backgroundColor: "transparent"
+    textColor: "{colors.text-muted}"
+    typography: "{typography.label-md}"
+    border: "1px solid {colors.border}"
+    rounded: "{rounded.pill}"
+    padding: "3px 10px"
+  admin-feedback-success:
+    textColor: "#22C55E"
+    typography: "{typography.label-md}"
+  admin-feedback-error:
+    textColor: "#EF4444"
+    typography: "{typography.label-md}"
+  admin-login-card:
+    backgroundColor: "transparent"
+    border: "1px solid {colors.border}"
+    rounded: "{rounded.md}"
+    padding: 40px
+    maxWidth: 400px
 ---
 
 ## Overview
@@ -569,6 +643,8 @@ Do not try to replicate desktop spatial positioning on mobile. Adapt the hierarc
 - Contact form behavior (if any) is not specified — currently assumed to be link-only.
 - Specific scroll progress thresholds for spatial state transitions need calibration in implementation.
 - Dark/light mode variant is not planned — this design is dark-only by intent.
+- Admin area: technology management screen is deferred to a future version.
+- Admin area: dialog animation easing is not yet specified.
 
 ## References
 
@@ -576,3 +652,280 @@ Do not try to replicate desktop spatial positioning on mobile. Adapt the hierarc
 - `minimalist-event-launch-DESIGN.md` — Minimalist direction, responsiveness, Inter as typographic base, JetBrains Mono for labels, controlled motion.
 - Visual palette reference — `#FFFFFF` · `#D6D6D6` · `#898A8C` · `#545A5B` · `#06151E`.
 - Hand-drawn layout sketch — Header with name and nav · `About` as dominant area · `Project` as secondary area · `Contact` as minimal endpoint · Arrows representing spatial focus change on scroll.
+
+---
+
+## Admin Area
+
+### Overview
+
+The admin area is part of the same project but operates under a deliberately different visual register. While the public portfolio is experimental, spatial, and atmospheric, the admin is functional, organized, and task-focused. It exists to let the developer manage projects without friction — not to be a showcase.
+
+```
+PORTFOLIO          ADMIN
+→ experimental     → functional
+→ spatial          → organized
+→ depth + motion   → stable + legible
+→ composition      → task-focused
+```
+
+The admin shares the same token system — colors, typography, spacing, radius, borders — but does not use the Fibonacci spatial navigation as its primary interaction model.
+
+### Routes
+
+```
+/admin/login   — Authentication screen
+/admin         — Main dashboard (project management)
+```
+
+No separate pages for `/admin/projects` or `/admin/technologies` in the first version. All project management is concentrated on the `/admin` dashboard.
+
+### Visual Principles
+
+- Clarity over expression.
+- Fast task completion with minimal cognitive load.
+- Readable type hierarchy at all viewport sizes.
+- Visible feedback for every significant action.
+- Accessibility and keyboard navigation are first-class requirements.
+- Visual consistency with the portfolio's token system.
+- No excessive animation — only functional state transitions.
+
+### Page Structure — Dashboard (`/admin`)
+
+```
+┌──────────────────────────────────────────────────────┐
+│ ADMIN                                      [ Logout ] │
+├──────────────────────────────────────────────────────┤
+│                                                       │
+│  Projects                      [ + New project ]      │
+│                                                       │
+│  ┌─────────────────────────────────────────────────┐  │
+│  │ NestFin                                         │  │
+│  │ Finance management platform                     │  │
+│  │                                                 │  │
+│  │ Next.js · C# · MySQL                            │  │
+│  │                          [ Edit ] [ Delete ]    │  │
+│  └─────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────┘
+```
+
+The layout scales cleanly from a few projects to a longer list. No pagination is required at the initial scale.
+
+### Login Screen (`/admin/login`)
+
+Minimal, centered, no distraction.
+
+```
+┌────────────────────────────────┐
+│                                │
+│            ADMIN               │
+│                                │
+│  Email                         │
+│  [__________________________]  │
+│                                │
+│  Password                      │
+│  [__________________________]  │
+│                                │
+│          [ Sign in ]           │
+│                                │
+└────────────────────────────────┘
+```
+
+Uses `{component.admin-login-card}`. The login form must handle four states: default, loading, authentication error, and keyboard focus. Error messages appear inline below the relevant field.
+
+### Project List
+
+Each project item in the list exposes only the information needed for identification:
+
+- Name — `{typography.heading-md}`
+- Short description — `{typography.body-md}`
+- Tech stack — rendered as `{component.admin-badge-tech}` tags
+- Actions — Edit and Delete buttons
+
+Avoid overloading the list with metadata. The card uses `{component.admin-project-card}` with a subtle border hover state via `{component.admin-project-card-hover}`.
+
+### Project Form — Create & Edit
+
+Create and edit happen inside the same dialog (`{component.admin-dialog}`), not on separate pages. The dialog is triggered by "New project" or "Edit".
+
+```
+/admin
+   │
+   ├── project list
+   │
+   └── [ New project ]
+          │
+          ▼
+       Dialog
+          │
+          └── ProjectForm (reused for edit)
+```
+
+**Form fields:**
+- Name
+- Description
+- Link
+- Technologies (multi-select toggle — see below)
+
+The same `ProjectForm` component handles both creation and editing. Prefill all fields when editing.
+
+### Technology Selection
+
+Technologies are managed inside the project form. In the first version there is no standalone technology management screen.
+
+```
+Technologies
+
+[ Next.js ] [ C# ] [ MySQL ]
+[ React   ] [ PHP ] [ Docker ]
+```
+
+Selected technologies are visually distinguished from unselected ones. Use `{component.admin-badge-tech}` with an active/selected modifier state.
+
+### Interface States
+
+All significant admin actions must have visible feedback.
+
+**Loading**
+```
+[ Saving... ]
+```
+Button enters disabled + loading state. Label changes to reflect the ongoing action.
+
+**Success**
+```
+✓ Project saved successfully.
+```
+Uses `{component.admin-feedback-success}` inline below the form or as a dismissible top-of-panel message.
+
+**Error**
+```
+Could not save the project. Please try again.
+```
+Uses `{component.admin-feedback-error}`. Never fail silently.
+
+**Empty list**
+```
+No projects yet.
+
+[ + New project ]
+```
+The empty state must include the primary action so the user knows exactly what to do next.
+
+**Delete confirmation**
+Before permanently removing a project, a confirmation must appear:
+```
+Delete project?
+
+This action cannot be undone.
+
+[ Cancel ]  [ Delete ]
+```
+Uses `{component.admin-button-ghost}` for Cancel and `{component.admin-button-danger}` for Delete. Never auto-confirm a destructive action.
+
+### Component Architecture
+
+Admin components live in their own directory, fully separated from portfolio and spatial components:
+
+```
+components/
+├── portfolio/
+│   ├── About.tsx
+│   ├── Projects.tsx
+│   ├── Contact.tsx
+│   └── Navigation.tsx
+│
+├── spatial/
+│   ├── SpatialContainer.tsx
+│   ├── SpatialSection.tsx
+│   ├── FibonacciMotion.tsx
+│   └── ScrollController.tsx
+│
+└── admin/
+    ├── AdminHeader.tsx
+    ├── ProjectList.tsx
+    ├── ProjectCard.tsx
+    ├── ProjectForm.tsx
+    └── ProjectDialog.tsx
+```
+
+Admin visual logic must not mix with the spatial system logic. These are separate concerns with separate interaction models.
+
+### Shared vs. Exclusive Elements
+
+**Shared between portfolio and admin:**
+- Color tokens
+- Typography scale and families
+- Spacing tokens
+- Border radius tokens
+- Base interactive states (focus ring, hover contrast)
+- Icon language
+
+**Exclusive to the portfolio (not used in admin):**
+- Fibonacci spatial navigation
+- Depth planes (first/second/third plane model)
+- Animated blur transitions
+- Cinematic section transitions
+- Atmospheric background effects
+- Asymmetric compositional layout
+
+The admin should feel like it belongs to the same product without inheriting complexity that is irrelevant to task completion.
+
+### Responsive — Admin
+
+**Desktop (priority):** Full-width list layout. Dialog centered with max-width ~560px.
+
+**Mobile:** Cards stack vertically. Action buttons (`Edit`, `Delete`) are full-width on small screens. Touch targets: minimum 44 × 44px. Dialog takes full-screen width with internal scroll.
+
+```
+┌──────────────────────────┐
+│ NestFin                  │
+│                          │
+│ Next.js · C# · MySQL     │
+│                          │
+│ [ Edit ]  [ Delete ]     │
+└──────────────────────────┘
+```
+
+### Admin Do's and Don'ts
+
+**Do**
+- Use the same token system as the portfolio — never introduce new colors or custom spacing.
+- Show feedback for every action: loading, success, error, empty.
+- Confirm before any destructive action.
+- Reuse `ProjectForm` for both create and edit flows.
+- Keep keyboard navigation fully functional throughout the admin.
+- Keep the admin visually simpler than the public portfolio.
+
+**Don't**
+- Don't use the Fibonacci spatial scroll as the admin's navigation model.
+- Don't create separate pages for create and edit — use the dialog.
+- Don't build a technology management screen in version one.
+- Don't stack excessive animations — admin transitions are subtle state changes only.
+- Don't mix admin components with portfolio or spatial components.
+- Don't introduce design patterns that exist only in the admin — extend the shared token system instead.
+
+### Full Structure
+
+```
+PORTFOLIO
+│
+├── About
+├── Projects
+│     ├── Project A
+│     ├── Project B
+│     └── Project C
+└── Contact
+
+
+ADMIN
+│
+├── /admin/login
+│
+└── /admin  (Dashboard)
+      │
+      ├── Project list
+      ├── New project → Dialog → ProjectForm
+      ├── Edit project → Dialog → ProjectForm (prefilled)
+      └── Delete project → Confirmation dialog
+```
