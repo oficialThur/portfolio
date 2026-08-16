@@ -1,7 +1,303 @@
 @import "tailwindcss";
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ---------------------------------------------------------------------------
+   Tokens — docs/design/DESIGN.md (pinned). Não alterar sem atualizar a spec.
+---------------------------------------------------------------------------- */
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+@theme {
+  /* Palette — canvas Onyx (#353839), a pedido do dono em 2026-08-16.
+     gray-300 e gray-500 foram clareados na mesma proporção para preservar o
+     contraste AA sobre o novo fundo (muted 5.1:1; border 2.5:1). */
+  --color-background: #353839;
+  --color-ink: #353839;
+  --color-white: #ffffff;
+  --color-gray-100: #d6d6d6;
+  --color-gray-300: #a8aaac;
+  --color-gray-500: #6e7476;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #d6d6d6;
+  --color-text-muted: #a8aaac;
+  --color-border: #6e7476;
+
+  /* Type scale */
+  --text-display-xl: clamp(48px, 8vw, 112px);
+  --text-display-xl--line-height: 1.04;
+  --text-display-xl--letter-spacing: -2px;
+  --text-display-xl--font-weight: 600;
+  --text-display-lg: clamp(40px, 6vw, 80px);
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -1.5px;
+  --text-display-lg--font-weight: 500;
+  --text-heading-md: 32px;
+  --text-heading-md--line-height: 1.2;
+  --text-heading-md--letter-spacing: -0.5px;
+  --text-heading-md--font-weight: 500;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.6;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 1.6;
+  --text-label-md: 12px;
+  --text-label-md--line-height: 1.2;
+  --text-label-md--letter-spacing: 0.5px;
+  --text-label-md--font-weight: 500;
+  --text-editorial: clamp(32px, 4vw, 56px);
+  --text-editorial--line-height: 1.15;
+  --text-editorial--letter-spacing: -0.5px;
+  --text-editorial--font-weight: 400;
+  --text-nav-link: 12px;
+  --text-nav-link--line-height: 1.2;
+  --text-nav-link--letter-spacing: 0.5px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-pill: 9999px;
+}
+
+:root {
+  /* Spacing scale */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 48px;
+  --space-6: 64px;
+  --space-7: 80px;
+  --space-8: 120px;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+---------------------------------------------------------------------------- */
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Browser surfaces — a página inteira carrega o design, inclusive o que o
+   browser desenha por padrão. */
+::selection {
+  background-color: var(--color-white);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 1px solid var(--color-text-primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-color: var(--color-gray-500) var(--color-background);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-500);
+  border: 3px solid var(--color-background);
+  border-radius: var(--radius-pill);
+}
+
+a {
+  text-underline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Spatial system — duas camadas complementares:
+   flat:    (max-width: 767px) OR (prefers-reduced-motion: reduce)
+   spatial: (min-width: 768px) AND (prefers-reduced-motion: no-preference)
+   O JS espelha exatamente a query spatial (ScrollController.SPATIAL_QUERY).
+---------------------------------------------------------------------------- */
+
+.spatial-track {
+  position: relative;
+}
+
+.spatial-viewport {
+  position: relative;
+}
+
+/* Flat: fluxo vertical funcional. A hierarquia permanece; a mecânica não.
+   As seções entram com reveal sutil (fade + rise) quando cruzam a viewport —
+   o JS adiciona .is-visible uma única vez. */
+.spatial-section {
+  position: relative;
+  padding-block: var(--space-7);
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spatial-section.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.spatial-section + .spatial-section {
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
+}
+
+/* Spatial: trilha de scroll real (uma viewport por seção) + palco fixo.
+   As seções coexistem empilhadas; as poses (transform/blur/opacity) vêm do JS. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .spatial-track {
+    height: calc(var(--section-count, 3) * 100vh);
+  }
+
+  .spatial-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  /* No modo espacial as poses vêm do estilo inline via rAF — nenhuma
+     transição CSS pode interferir, e o reveal por scroll não se aplica. */
+  .spatial-section {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 0;
+    transition: none;
+    will-change: transform, opacity, filter;
+  }
+
+  .spatial-section + .spatial-section {
+    border-top: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Motion — entrada (DESIGN.md: fade + rise, 400–600ms, ease-out, stagger)
+---------------------------------------------------------------------------- */
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* O offset de 780ms alinha a entrada do conteúdo à saída do loader
+   (720ms de espera + início do fade). */
+.enter {
+  opacity: 0;
+  animation: rise-in 520ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--enter-delay, 0ms) + 780ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter {
+    animation: none;
+    opacity: 1;
+  }
+
+  /* Sem revelação progressiva: tudo visível imediatamente. */
+  .spatial-section {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Page loader — tela de tinta com o nome em mono; desvanece sozinha via CSS
+   (não depende de JS para sumir) e nunca bloqueia interação ou leitores.
+----------------------------------------------------------------------------- */
+
+@keyframes loader-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  pointer-events: none;
+  animation: loader-out 480ms cubic-bezier(0.4, 0, 0.2, 1) 720ms forwards;
+}
+
+.page-loader > span {
+  animation: rise-in 480ms cubic-bezier(0.16, 1, 0.3, 1) 60ms backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-loader {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+
+  .page-loader > span {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Atmosphere — sombras difusas no canvas (pattern do site, pedido do dono em
+   2026-08-16) + grain. Camadas de fundo apenas: nunca competem com o conteúdo
+   (DESIGN.md › Atmospheric Effects). Sombras atrás do conteúdo (z-0); grain
+   acima de tudo (z-130).
+---------------------------------------------------------------------------- */
+
+.shadow-pattern {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 58% 46% at 88% 6%, rgb(0 0 0 / 0.34), transparent 70%),
+    radial-gradient(ellipse 52% 44% at 4% 96%, rgb(0 0 0 / 0.38), transparent 70%),
+    radial-gradient(ellipse 42% 34% at 12% 12%, rgb(0 0 0 / 0.18), transparent 70%);
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain {
+    display: none;
+  }
 }
