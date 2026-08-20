@@ -1,34 +1,31 @@
-# Contrucao 
-FROM node:20-alpine AS builder
+# ============ FRONTEND ============
+
+FROM node:20-alpine AS frontend-builder
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install
-COPY . . 
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build
 RUN npm prune --production
 
-# desenvolvimento
-FROM node:20-alpine AS development
+FROM node:20-alpine AS frontend-development
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./
 RUN npm install
-COPY . . 
-CMD ["npm", "run", "dev"]
+COPY frontend/ ./
 EXPOSE 3000
+CMD ["npm", "run", "dev"]
 
-# Producao
-FROM node:20-alpine AS production
+FROM node:20-alpine AS frontend-production
 WORKDIR /app
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/package-lock.json ./
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/next.config.ts ./
-COPY --from=builder /app/public ./public
-
-ENV PORT=3030
-EXPOSE 3030
+COPY --from=frontend-builder /app/package.json ./
+COPY --from=frontend-builder /app/package-lock.json ./
+COPY --from=frontend-builder /app/.next ./.next
+COPY --from=frontend-builder /app/node_modules ./node_modules
+COPY --from=frontend-builder /app/next.config.ts ./
+COPY --from=frontend-builder /app/public ./public
+ENV PORT=3000
+EXPOSE 3000
 CMD ["npm", "start"]
-
-
-

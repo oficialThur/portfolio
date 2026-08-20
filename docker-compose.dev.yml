@@ -1,18 +1,19 @@
 services:
-  portfolio-dev:
+  frontend:
     build:
       context: .
       dockerfile: Dockerfile
-      target: development
-    container_name: portfolio-dev
+      target: frontend-development
+    container_name: portfolio-frontend-dev
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
+      - ./frontend:/app
       - /app/node_modules
       - /app/.next
     environment:
-      - NODE_ENV=development
-      - WATCHPACK_POLLING=true
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
+      NEXT_PUBLIC_API_URL: http://localhost:4000
     working_dir: /app
     command: npm run dev
