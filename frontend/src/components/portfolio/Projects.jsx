@@ -1,11 +1,11 @@
-import { projects, type Project } from "@/src/data/projects";
+import { projects } from "@/data/projects.js";
 
 /**
  * Item de projeto no formato da referência visual: ano em display à esquerda,
  * nome dominante logo abaixo, descrição curta na mesma coluna; stack em coluna
  * mono à direita com o link (GitHub) como fecho em destaque.
  */
-function ProjectItem({ project }: { project: Project }) {
+function ProjectItem({ project }) {
   return (
     <li>
       <div className="group grid gap-8 border-b border-border py-10 transition-transform duration-200 ease-out hover:-translate-y-0.5 md:grid-cols-12 md:gap-6 md:py-16">

@@ -1,6 +1,4 @@
-"use client";
-
-import { contact } from "@/src/data/site";
+import { contact } from "@/data/site.js";
 
 const SOCIALS = [
   { label: "GitHub", href: contact.github, external: true },

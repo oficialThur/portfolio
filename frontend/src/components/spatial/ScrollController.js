@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 /**
@@ -13,7 +11,7 @@ export const SPATIAL_QUERY =
  * Se o modo espacial está ativo neste cliente. SSR e primeiro render retornam
  * false (fluxo plano); o layout effect sincroniza antes do paint — sem flash.
  */
-export function useSpatialEnabled(): boolean {
+export function useSpatialEnabled() {
   const [enabled, setEnabled] = useState(false);
 
   useLayoutEffect(() => {
@@ -35,11 +33,11 @@ export function useSpatialEnabled(): boolean {
  * Roda nos dois modos: no plano, o progresso alimenta apenas o indicador da
  * navegação; no espacial, ele dirige a pose de cada seção.
  */
-export function useScrollProgress(count: number) {
+export function useScrollProgress(count) {
   const [progress, setProgress] = useState(0);
   const targetRef = useRef(0);
   const currentRef = useRef(0);
-  const rafRef = useRef<number | null>(null);
+  const rafRef = useRef(null);
 
   const readTarget = useCallback(() => {
     const max = document.documentElement.scrollHeight - window.innerHeight;
@@ -68,8 +66,6 @@ export function useScrollProgress(count: number) {
       }
     };
 
-    // Sincroniza com a posição atual (ex.: scroll restaurado) sem animação:
-    // o primeiro tick publica o valor já resolvido.
     readTarget();
     currentRef.current = targetRef.current;
     rafRef.current = requestAnimationFrame(tick);
@@ -84,9 +80,8 @@ export function useScrollProgress(count: number) {
     };
   }, [count, readTarget]);
 
-  /** Navegação direta: rola a trilha até a seção (âncoras do header e setas). */
   const goTo = useCallback(
-    (index: number) => {
+    (index) => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const top = (index / (count - 1)) * max;
       window.scrollTo({

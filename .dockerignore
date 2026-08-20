@@ -1,0 +1,27 @@
+# dependencies
+**/node_modules
+
+# frontend build artifacts
+frontend/dist
+frontend/.next
+frontend/.vite
+
+# backend build artifacts
+backend/dist
+
+# env & secrets
+.env
+.env.*
+!**/.env.example
+
+# git & tooling
+.git
+.gitignore
+.impeccable
+.obsidian
+
+# docs & misc
+**/*.md
+.DS_Store
+coverage
+*.log

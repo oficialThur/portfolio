@@ -4,7 +4,7 @@ export const site = {
   role: "Desenvolvedor Fullstack",
   education: "Ciência da Computação",
   location: "Belo Horizonte, Brasil",
-} as const;
+};
 
 /**
  * Contato — PLACEHOLDERS a pedido do dono (2026-08-16), para a estrutura da
@@ -16,4 +16,4 @@ export const contact = {
   email: "seu-email@exemplo.com",
   github: "https://github.com/seu-usuario",
   linkedin: "https://www.linkedin.com/in/seu-usuario",
-} as const;
+};

@@ -1,4 +1,4 @@
-import { site } from "@/src/data/site";
+import { site } from "@/data/site.js";
 
 const METADATA = [site.role, site.education, site.location];
 
@@ -9,7 +9,10 @@ const METADATA = [site.role, site.education, site.location];
 export function About() {
   return (
     <div className="pt-14 md:pt-0">
-      <p className="enter font-mono text-label-md uppercase text-text-muted" style={{ ["--enter-delay" as string]: "0ms" }}>
+      <p
+        className="enter font-mono text-label-md uppercase text-text-muted"
+        style={{ "--enter-delay": "0ms" }}
+      >
         Sobre
       </p>
 
@@ -17,7 +20,7 @@ export function About() {
         <div className="md:col-span-8">
           <h1
             className="enter text-balance text-display-xl"
-            style={{ ["--enter-delay" as string]: "80ms" }}
+            style={{ "--enter-delay": "80ms" }}
           >
             Olá, sou o
             <br />
@@ -26,7 +29,7 @@ export function About() {
 
           <p
             className="enter mt-8 max-w-[52ch] text-body-lg text-text-secondary"
-            style={{ ["--enter-delay" as string]: "160ms" }}
+            style={{ "--enter-delay": "160ms" }}
           >
             Desenvolvedor fullstack e estudante de Ciência da Computação.
             Construo experiências digitais completas — do backend à interface —
@@ -37,7 +40,7 @@ export function About() {
         <div className="md:col-span-4">
           <ul
             className="enter flex flex-col gap-2 border-l border-border pl-4 font-mono text-label-md uppercase text-text-muted md:mb-2"
-            style={{ ["--enter-delay" as string]: "240ms" }}
+            style={{ "--enter-delay": "240ms" }}
           >
             {METADATA.map((item) => (
               <li key={item}>{item}</li>

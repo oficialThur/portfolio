@@ -1,7 +1,5 @@
-"use client";
-
 import { useState } from "react";
-import { site } from "@/src/data/site";
+import { site } from "@/data/site.js";
 
 /**
  * Cortina de abertura: cobre a primeira pintura e desvanece via animação CSS

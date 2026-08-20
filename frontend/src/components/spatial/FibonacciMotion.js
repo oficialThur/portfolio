@@ -18,18 +18,6 @@
  * por frame.
  */
 
-export type SpatialPose = {
-  /** vw — deslocamento horizontal (entrada pela direita, saída à esquerda) */
-  x: number;
-  /** vh — arco vertical da trajetória (a curvatura da espiral) */
-  y: number;
-  scale: number;
-  /** px */
-  blur: number;
-  opacity: number;
-  zIndex: number;
-};
-
 /** Decaimento geométrico da escala por plano de profundidade. */
 const SCALE_FALLOFF = 0.85;
 /** Alcance horizontal máximo da trajetória, saturado com a distância. */
@@ -44,7 +32,7 @@ const OPACITY_PER_PLANE = 0.35;
 /** Arco vertical por seção (vh por t) — sinais alternados desenham a curva. */
 const ARC_VH = [14, -11, 9];
 
-export function poseFor(index: number, progress: number): SpatialPose {
+export function poseFor(index, progress) {
   const t = progress - index;
   const at = Math.abs(t);
   const direction = Math.sign(t) || 0;
@@ -62,6 +50,6 @@ export function poseFor(index: number, progress: number): SpatialPose {
 }
 
 /** A seção "ativa" é a mais próxima do progresso atual. */
-export function activeIndexFor(progress: number, count: number): number {
+export function activeIndexFor(progress, count) {
   return Math.min(Math.max(Math.round(progress), 0), count - 1);
 }

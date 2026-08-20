@@ -1,15 +1,13 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
-import { useSpatial } from "../spatial/SpatialContext";
-import { SPATIAL_QUERY } from "../spatial/ScrollController";
-import { site } from "@/src/data/site";
+import { useSpatial } from "../spatial/SpatialContext.js";
+import { SPATIAL_QUERY } from "../spatial/ScrollController.js";
+import { site } from "@/data/site.js";
 
 const LINKS = [
   { index: 0, id: "sobre", label: "Sobre" },
   { index: 1, id: "projetos", label: "Projetos" },
   { index: 2, id: "contato", label: "Contato" },
-] as const;
+];
 
 /**
  * Navegação: nome fixo no topo à esquerda; lista de seções em coluna vertical
@@ -19,13 +17,9 @@ const LINKS = [
 export function Navigation() {
   const { enabled, activeIndex, goTo } = useSpatial();
   const [menuOpen, setMenuOpen] = useState(false);
-  const toggleRef = useRef<HTMLButtonElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef(null);
+  const overlayRef = useRef(null);
 
-  // O menu mobile não faz sentido com o modo espacial ativo: se a viewport
-  // crescer para desktop (ou o usuário mudar a preferência de movimento) com
-  // o menu aberto, ele fecha. O setState vive no callback da mídia, não no
-  // corpo do effect.
   useEffect(() => {
     const mql = window.matchMedia(SPATIAL_QUERY);
     const closeOnSpatial = () => setMenuOpen(false);
@@ -41,12 +35,12 @@ export function Navigation() {
 
     const focusables = () => {
       const links = Array.from(
-        overlayRef.current?.querySelectorAll<HTMLElement>("a") ?? [],
+        overlayRef.current?.querySelectorAll("a") ?? [],
       );
       return toggleRef.current ? [toggleRef.current, ...links] : links;
     };
 
-    const onKeyDown = (event: KeyboardEvent) => {
+    const onKeyDown = (event) => {
       if (event.key === "Escape") {
         setMenuOpen(false);
         toggleRef.current?.focus();
@@ -68,11 +62,8 @@ export function Navigation() {
 
     document.addEventListener("keydown", onKeyDown);
 
-    // O primeiro link só é focável um frame após a abertura (o overlay sai de
-    // `visibility: hidden`); reagenda enquanto o foco não pegar — cobre o caso
-    // de o clique de fechamento chegar antes do primeiro frame.
     const focusFirstLink = () => {
-      const first = overlayRef.current?.querySelector<HTMLElement>("a");
+      const first = overlayRef.current?.querySelector("a");
       if (!first) return;
       if (first !== document.activeElement) first.focus();
       if (document.activeElement !== first) {
@@ -88,12 +79,12 @@ export function Navigation() {
     };
   }, [menuOpen]);
 
-  const linkClass = (isActive: boolean) =>
+  const linkClass = (isActive) =>
     `group relative flex flex-col items-end text-nav-link transition-colors duration-200 ${
       isActive ? "text-text-primary" : "text-text-muted hover:text-text-primary"
     }`;
 
-  const indicator = (isActive: boolean) => (
+  const indicator = (isActive) => (
     <span
       aria-hidden="true"
       className={`mt-1 h-px w-4 bg-text-primary transition-opacity duration-200 ${
@@ -102,10 +93,7 @@ export function Navigation() {
     />
   );
 
-  const handleClick = (
-    event: React.MouseEvent<HTMLAnchorElement>,
-    index: number,
-  ) => {
+  const handleClick = (event, index) => {
     if (enabled) {
       event.preventDefault();
       goTo(index);
@@ -150,7 +138,6 @@ export function Navigation() {
         </div>
       </header>
 
-      {/* Lista vertical de seções — canto superior direito, sempre visível. */}
       <nav
         aria-label="Navegação de seções"
         className="fixed right-6 top-20 z-[110] hidden md:block lg:right-12"
@@ -175,7 +162,6 @@ export function Navigation() {
         </ul>
       </nav>
 
-      {/* Menu mobile — overlay em tela cheia, mesma tinta do canvas. */}
       <div
         ref={overlayRef}
         id="menu-overlay"

@@ -1,27 +1,8 @@
-import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import { PageLoader } from "../components/PageLoader";
-import "../styles/globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["500", "600"],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  title: "Arthur Henrique — Desenvolvedor Fullstack",
-  description:
-    "Portfólio de Arthur Henrique, desenvolvedor fullstack em Belo Horizonte. Sobre, projetos e contato — uma experiência editorial e espacial.",
-};
+import { Route, Routes } from "react-router-dom";
+import { PageLoader } from "./components/PageLoader.jsx";
+import { HomePage } from "./pages/HomePage.jsx";
+import { AdminPage } from "./pages/AdminPage.jsx";
+import { AdminLoginPage } from "./pages/AdminLoginPage.jsx";
 
 const directionContract = `<!--
   DIRECTION CONTRACT — portfolio /
@@ -46,19 +27,18 @@ const directionContract = `<!--
   finish review, the verdict, and DESIGN.md (pinned — já existente, não reescrito).
 -->`;
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function App() {
   return (
-    <html
-      lang="pt-BR"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full bg-background font-sans text-text-primary">
-        <div hidden dangerouslySetInnerHTML={{ __html: directionContract }} />
-        <div className="shadow-pattern" aria-hidden="true" />
-        {children}
-        <div className="grain" aria-hidden="true" />
-        <PageLoader />
-      </body>
-    </html>
+    <>
+      <div hidden dangerouslySetInnerHTML={{ __html: directionContract }} />
+      <div className="shadow-pattern" aria-hidden="true" />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+      </Routes>
+      <div className="grain" aria-hidden="true" />
+      <PageLoader />
+    </>
   );
 }

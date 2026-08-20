@@ -1,37 +1,21 @@
-"use client";
-
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { activeIndexFor } from "./FibonacciMotion";
-import { useScrollProgress, useSpatialEnabled } from "./ScrollController";
-import { SpatialContext } from "./SpatialContext";
-import { SpatialSection } from "./SpatialSection";
-import { SpatialArrows } from "./SpatialArrows";
-
-export type SpatialSectionInput = {
-  id: string;
-  label: string;
-  node: ReactNode;
-};
+import { useEffect, useMemo, useState } from "react";
+import { activeIndexFor } from "./FibonacciMotion.js";
+import { useScrollProgress, useSpatialEnabled } from "./ScrollController.js";
+import { SpatialContext } from "./SpatialContext.js";
+import { SpatialSection } from "./SpatialSection.jsx";
+import { SpatialArrows } from "./SpatialArrows.jsx";
 
 /**
  * Palco da navegação espacial: uma trilha de scroll real (uma viewport por
  * seção) alimenta um progresso contínuo que posiciona as seções em três
  * planos de profundidade. No modo plano, tudo vira fluxo vertical comum.
  */
-export function SpatialContainer({
-  navigation,
-  sections,
-}: {
-  navigation: ReactNode;
-  sections: SpatialSectionInput[];
-}) {
+export function SpatialContainer({ navigation, sections }) {
   const enabled = useSpatialEnabled();
   const { progress, goTo } = useScrollProgress(sections.length);
   const activeFromProgress = activeIndexFor(progress, sections.length);
   const [flatActiveIndex, setFlatActiveIndex] = useState(0);
 
-  // No fluxo plano a posição de scroll não corresponde às seções (alturas
-  // variáveis); a seção ativa é a que cruza o centro do viewport.
   useEffect(() => {
     if (enabled) return;
     const observer = new IntersectionObserver(
@@ -49,14 +33,11 @@ export function SpatialContainer({
     );
     const elements = sections
       .map((section) => document.getElementById(section.id))
-      .filter((element): element is HTMLElement => element !== null);
+      .filter((element) => element !== null);
     elements.forEach((element) => observer.observe(element));
     return () => observer.disconnect();
   }, [enabled, sections]);
 
-  // Reveal sutil no fluxo plano: cada seção ganha .is-visible uma única vez
-  // ao entrar na viewport (o CSS cuida do fade + rise). No modo espacial a
-  // "aparição" é a própria travessia — nada a revelar aqui.
   useEffect(() => {
     if (enabled) return;
     const observer = new IntersectionObserver(
@@ -72,7 +53,7 @@ export function SpatialContainer({
     );
     const elements = sections
       .map((section) => document.getElementById(section.id))
-      .filter((element): element is HTMLElement => element !== null);
+      .filter((element) => element !== null);
     elements.forEach((element) => observer.observe(element));
     return () => observer.disconnect();
   }, [enabled, sections]);
@@ -88,7 +69,7 @@ export function SpatialContainer({
     <SpatialContext.Provider value={value}>
       <div
         className="spatial-track"
-        style={{ ["--section-count" as string]: sections.length }}
+        style={{ "--section-count": sections.length }}
       >
         {navigation}
         <main className="spatial-viewport">

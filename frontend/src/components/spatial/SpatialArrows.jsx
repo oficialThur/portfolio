@@ -1,6 +1,4 @@
-"use client";
-
-import { useSpatial } from "./SpatialContext";
+import { useSpatial } from "./SpatialContext.js";
 
 /**
  * Indicadores de direção espacial (não são controles de página "up/down").

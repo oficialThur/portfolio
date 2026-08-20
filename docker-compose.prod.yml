@@ -5,12 +5,25 @@ services:
       dockerfile: Dockerfile
       target: frontend-production
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+        VITE_API_URL: ${VITE_API_URL:-/api}
     container_name: portfolio-frontend-prod
     restart: always
     ports:
       - "3000:3000"
+    depends_on:
+      - backend
     environment:
       NODE_ENV: production
-      PORT: "3000"
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-production
+    container_name: portfolio-backend-prod
+    restart: always
+    expose:
+      - "4000"
+    environment:
+      NODE_ENV: production
+      PORT: "4000"

@@ -8,9 +8,10 @@ backend/node_modules/
 # testing
 coverage/
 
-# next.js
+# frontend (Vite)
+frontend/dist/
+frontend/.vite/
 frontend/.next/
-frontend/out/
 
 # backend
 backend/dist/
@@ -33,13 +34,6 @@ yarn-error.log*
 .env*
 !.env.example
 !**/.env.example
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-frontend/next-env.d.ts
 
 # obsidian
 .obsidian
