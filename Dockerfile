@@ -30,7 +30,7 @@ WORKDIR /app
 COPY backend/package.json backend/package-lock.json ./
 RUN npm install
 COPY backend/ ./
-EXPOSE 4000
+EXPOSE 3001
 CMD ["npm", "run", "dev"]
 
 FROM node:20-alpine AS backend-production

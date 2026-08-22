@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Admin {
+  id BigInt @id @default(autoincrement())
+  email String @unique 
+  name String? 
+  password String
+
+  projeto Projeto[]
+  subtitle Subtitle[]
+
+  createAr DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Projeto {
+  id          BigInt   @id @default(autoincrement())
+  nome        String
+  descricao   String
+  link        String
+
+  adminId     BigInt
+  admin       Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  tecnologias ProjetoTecnologia[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("projetos")
+}
+
+model Subtitle {
+  id        BigInt   @id @default(autoincrement())
+  subtitle  String
+
+  adminId   BigInt
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subtitles")
+}
+
+model Tecnologia {
+  id        BigInt   @id @default(autoincrement())
+  nome      String   @unique
+
+  projetos  ProjetoTecnologia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tecnologias")
+}
+
+model ProjetoTecnologia {
+  projetoId    BigInt
+  tecnologiaId BigInt
+
+  projeto      Projeto    @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  tecnologia   Tecnologia @relation(fields: [tecnologiaId], references: [id], onDelete: Cascade)
+
+  @@id([projetoId, tecnologiaId])
+  @@map("projeto_tecnologias")
+}
