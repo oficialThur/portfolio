@@ -31,7 +31,7 @@ COPY backend/package.json backend/package-lock.json ./
 RUN npm install
 COPY backend/ ./
 EXPOSE 3001
-CMD ["npm", "run", "dev"]
+CMD ["npx", "tsx", "app.js"]
 
 FROM node:20-alpine AS backend-production
 WORKDIR /app

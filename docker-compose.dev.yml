@@ -30,10 +30,14 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+    env_file:
+      - ./env/.env
     environment:
       NODE_ENV: development
       PORT: "3001"
       DATABASE_URL: "mysql://root:root@db:3306/portfolio_db"
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
     depends_on:
       db:
         condition: service_healthy
