@@ -13,7 +13,7 @@ export const site = {
  * Formatos: email como endereço puro; github/linkedin como URL completa.
  */
 export const contact = {
-  email: "seu-email@exemplo.com",
-  github: "https://github.com/seu-usuario",
-  linkedin: "https://www.linkedin.com/in/seu-usuario",
+  email: "oficialthurhenrique@gmail.com",
+  github: "https://github.com/oficialThur",
+  linkedin: "https://www.linkedin.com/in/arthurhenrique-dev/",
 };

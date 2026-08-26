@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
-import api from "../service/api";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useNoIndex } from "@/hooks/useNoIndex";
+import api from "@/service/api";
+import { getToken, setToken } from "@/service/auth";
 
 
 const loginSchema = z.object({
@@ -27,29 +29,20 @@ const errorClass = "font-mono text-label-md text-[#EF4444]";
  * erro de autenticação e foco de teclado. Validação com zod; mensagens de
  * erro inline abaixo do campo correspondente.
  *
- * A autenticação está propositalmente desconectada: o submit válido simula a
- * tentativa e cai no estado de erro até o backend ser plugado (TODO abaixo).
-*/
+ * Submit autenticado grava o JWT e envia para `/admin`.
+ */
 export function AdminLoginPage() {
-  useEffect(() => {
-    document.title = "Login — Admin";
-    const robots = document.querySelector('meta[name="robots"]');
-    if (robots) {
-      robots.setAttribute("content", "noindex, nofollow");
-    } else {
-      const meta = document.createElement("meta");
-      meta.name = "robots";
-      meta.content = "noindex, nofollow";
-      document.head.appendChild(meta);
-    }
-  }, []);
-  
-  const navigate = useNavigate();
+  useNoIndex("Login — Admin");
 
+  const navigate = useNavigate();
   const [values, setValues] = useState({ email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState({});
   const [authError, setAuthError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (getToken()) {
+    return <Navigate to="/admin" replace />;
+  }
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -76,7 +69,7 @@ export function AdminLoginPage() {
     setIsSubmitting(true);
     try {
       const { data } = await api.post("/login", result.data);
-      localStorage.setItem("token", data.token);
+      setToken(data.token);
       navigate("/admin");
     } catch (error) {
       if (error.response?.status === 401) {
@@ -91,7 +84,7 @@ export function AdminLoginPage() {
 
   return (
     <main className="flex min-h-dvh items-center justify-center px-6">
-      <div className="enter w-full max-w-[400px] rounded-md border border-border p-10">
+      <div className="w-full max-w-[400px] rounded-md border border-border p-10">
         <h1 className="text-center font-mono text-label-md uppercase text-text-primary">
           Admin
         </h1>

@@ -5,8 +5,9 @@ const METADATA = [site.role, site.education, site.location];
 /**
  * Seção dominante — o hero é o Sobre. Tipografia grande lidera; metadata em
  * mono à direita; espaço negativo como elemento de composição (sketch).
+ * O parágrafo vem do cadastro de subtitle no admin (`GET /subtitulos`).
  */
-export function About() {
+export function About({ body = "" }) {
   return (
     <div className="pt-14 md:pt-0">
       <p
@@ -27,14 +28,14 @@ export function About() {
             {site.name}
           </h1>
 
-          <p
-            className="enter mt-8 max-w-[52ch] text-body-lg text-text-secondary"
-            style={{ "--enter-delay": "160ms" }}
-          >
-            Desenvolvedor fullstack e estudante de Ciência da Computação.
-            Construo experiências digitais completas — do backend à interface —
-            com tipografia, código e propósito.
-          </p>
+          {body ? (
+            <p
+              className="enter mt-8 max-w-[52ch] text-body-lg text-text-secondary"
+              style={{ "--enter-delay": "160ms" }}
+            >
+              {body}
+            </p>
+          ) : null}
         </div>
 
         <div className="md:col-span-4">

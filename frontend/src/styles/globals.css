@@ -319,3 +319,21 @@ a {
     display: none;
   }
 }
+
+/* Native <dialog> chrome — admin (DESIGN.md › admin-dialog) */
+.admin-dialog:not([open]) {
+  display: none;
+}
+
+.admin-dialog::backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
+
+.admin-dialog:focus {
+  outline: none;
+}
+
+.admin-dialog:focus-visible {
+  outline: 1px solid var(--color-text-primary);
+  outline-offset: 4px;
+}

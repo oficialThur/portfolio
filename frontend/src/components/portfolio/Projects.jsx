@@ -17,7 +17,7 @@ function ProjectItem({ project }) {
         </div>
 
         <div className="flex flex-col gap-2 font-mono text-label-md uppercase text-text-muted md:col-span-5 md:justify-center">
-          {project.stack.map((tech) => (
+          {(project.stack ?? []).map((tech) => (
             <span key={tech}>{tech}</span>
           ))}
           {project.link ? (
@@ -56,7 +56,7 @@ export function Projects({ items = [], showHeading = true }) {
       {items.length > 0 ? (
         <ol className={showHeading ? "mt-4 md:mt-8" : undefined}>
           {items.map((project) => (
-            <ProjectItem key={project.name} project={project} />
+            <ProjectItem key={project.id ?? project.name} project={project} />
           ))}
         </ol>
       ) : null}

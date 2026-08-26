@@ -197,6 +197,94 @@ app.delete("/projetos/:id", authMiddleware, async (req, res) => {
     }
 });
 
+// Rotas de Subtitulos - Admin
+
+function formatSubtitle(subtitle){
+    return {
+        id: subtitle.id.toString(),
+        subtitle: subtitle.subtitle,
+    }
+}
+
+app.get("/subtitulos", async (req, res) => {
+    try{
+        const subtitulo = await prisma.subtitle.findMany({
+            orderBy: { createdAt: 'desc' },
+        });
+        return res.status(200).json(subtitulo.map(formatSubtitle));
+    } catch(error){
+        console.error("Erro ao buscar subtitulos:", error);
+        return res.status(500).json({msg:"Erro interno do servidor"})
+    }
+});
+
+app.post("/subtitulos", authMiddleware, async (req, res) => {
+    const { subtitle } = req.body;
+
+    if(!subtitle){
+        return res.status(400).json({msg:"Subtitulo é obrigatório"})
+    }
+
+    try{
+        const newSubtitle = await prisma.subtitle.create({
+            data: { 
+                subtitle, 
+                adminId: BigInt(req.admin),
+            },
+        });
+        return res.status(201).json(formatSubtitle(newSubtitle));
+    } catch(error){ 
+        console.error("Erro ao criar subtitulo:", error);
+        return res.status(500).json({msg:"Erro interno do servidor"})
+    }
+});
+
+app.put("/subtitulos/:id", authMiddleware, async (req, res) => {
+    const { subtitle } = req.body;
+    const id = BigInt(req.params.id);
+
+
+    if(!subtitle){
+        return res.status(400).json({msg:"Subtitulo é obrigatório"})
+    }
+
+    try{
+        const existeSubtitulo = await prisma.subtitle.findUnique({where: {id}});
+
+        if(!existeSubtitulo){
+            return res.status(404).json({msg:"Subtitulo não encontrado"})
+        }
+
+        const subtituloAtualizado = await prisma.subtitle.update({
+            where: {id},
+            data: { 
+                subtitle
+            },
+        });
+        return res.status(200).json(formatSubtitle(subtituloAtualizado));
+    } catch(error){
+        console.error("Erro ao atualizar subtitulo:", error);
+        return res.status(500).json({msg:"Erro interno do servidor"})
+    }
+});
+
+app.delete("/subtitulos/:id", authMiddleware, async (req, res) => {
+    const id = BigInt(req.params.id);
+
+    try{
+        const existeSubtitulo = await prisma.subtitle.findUnique({where: {id}});
+        if(!existeSubtitulo){
+            return res.status(404).json({msg:"Subtitulo não encontrado"})
+        }
+
+        await prisma.subtitle.delete({where: {id}});
+        return res.status(204).send();
+    } catch(error){
+        console.error("Erro ao deletar subtitulo:", error);
+        return res.status(500).json({msg:"Erro interno do servidor"})
+    }
+});
+
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
 })

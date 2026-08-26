@@ -1,5 +1,6 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { PageLoader } from "./components/PageLoader.jsx";
+import { RequireAuth } from "./components/RequireAuth.jsx";
 import { HomePage } from "./pages/HomePage.jsx";
 import { AdminPage } from "./pages/AdminPage.jsx";
 import { AdminLoginPage } from "./pages/AdminLoginPage.jsx";
@@ -27,18 +28,36 @@ const directionContract = `<!--
   finish review, the verdict, and DESIGN.md (pinned — já existente, não reescrito).
 -->`;
 
+function PortfolioAtmosphere() {
+  const { pathname } = useLocation();
+  if (pathname !== "/") return null;
+
+  return (
+    <>
+      <div className="shadow-pattern" aria-hidden="true" />
+      <div className="grain" aria-hidden="true" />
+      <PageLoader />
+    </>
+  );
+}
+
 export default function App() {
   return (
     <>
       <div hidden dangerouslySetInnerHTML={{ __html: directionContract }} />
-      <div className="shadow-pattern" aria-hidden="true" />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAuth>
+              <AdminPage />
+            </RequireAuth>
+          }
+        />
         <Route path="/login" element={<AdminLoginPage />} />
       </Routes>
-      <div className="grain" aria-hidden="true" />
-      <PageLoader />
+      <PortfolioAtmosphere />
     </>
   );
 }
