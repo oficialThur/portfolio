@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import api from "../service/api";
+import { useNavigate } from "react-router-dom";
+
 
 const loginSchema = z.object({
-  email: z.email({ error: "Informe um email válido." }),
+  email: z.email({ error: "Email ou senha incorretos." }),
   password: z
     .string()
-    .min(1, { error: "Informe a senha." })
-    .min(8, { error: "A senha deve ter pelo menos 8 caracteres." }),
+    .min(1, { error: "Email ou senha incorretos." })
+    .min(8, { error: "Email ou senha incorretos." }),
 });
 
 const inputClass =
@@ -26,7 +29,7 @@ const errorClass = "font-mono text-label-md text-[#EF4444]";
  *
  * A autenticação está propositalmente desconectada: o submit válido simula a
  * tentativa e cai no estado de erro até o backend ser plugado (TODO abaixo).
- */
+*/
 export function AdminLoginPage() {
   useEffect(() => {
     document.title = "Login — Admin";
@@ -40,6 +43,8 @@ export function AdminLoginPage() {
       document.head.appendChild(meta);
     }
   }, []);
+  
+  const navigate = useNavigate();
 
   const [values, setValues] = useState({ email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState({});
@@ -70,12 +75,15 @@ export function AdminLoginPage() {
     setAuthError("");
     setIsSubmitting(true);
     try {
-      // TODO(owner): autenticar no backend (ex.: POST /api/auth/login com
-      // `result.data`); em sucesso navegar para /admin, em 401 chamar
-      // setAuthError("Email ou senha incorretos."). O delay abaixo existe só
-      // para exercitar o estado de loading enquanto a rota não existe.
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      setAuthError("Autenticação ainda não conectada ao backend.");
+      const { data } = await api.post("/login", result.data);
+      localStorage.setItem("token", data.token);
+      navigate("/admin");
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setAuthError("Email ou senha incorretos.");
+      } else {
+        setAuthError("Erro ao fazer login.");
+      }
     } finally {
       setIsSubmitting(false);
     }

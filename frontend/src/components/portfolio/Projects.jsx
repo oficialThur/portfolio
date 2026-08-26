@@ -1,5 +1,3 @@
-import { projects } from "@/data/projects.js";
-
 /**
  * Item de projeto no formato da referência visual: ano em display à esquerda,
  * nome dominante logo abaixo, descrição curta na mesma coluna; stack em coluna
@@ -10,7 +8,6 @@ function ProjectItem({ project }) {
     <li>
       <div className="group grid gap-8 border-b border-border py-10 transition-transform duration-200 ease-out hover:-translate-y-0.5 md:grid-cols-12 md:gap-6 md:py-16">
         <div className="md:col-span-7">
-          <p className="text-display-lg">{project.year}</p>
           <h3 className="mt-2 text-display-xl underline-offset-8 group-hover:underline">
             {project.name}
           </h3>
@@ -43,17 +40,22 @@ function ProjectItem({ project }) {
  * Seção intermediária — projetos como parte da composição, nunca um grid
  * genérico de cards. Cada item ocupa presença plena: ano e nome grandes à
  * esquerda, stack técnica em mono à direita.
+ *
+ * Até 3 projetos; cada um entra no palco espacial como plano próprio
+ * (spotlight no scroll). `showHeading` marca o primeiro da série.
  */
-export function Projects() {
+export function Projects({ items = [], showHeading = true }) {
   return (
     <div>
-      <h2 className="font-mono text-label-md uppercase text-text-muted">
-        Projetos
-      </h2>
+      {showHeading ? (
+        <h2 className="font-mono text-label-md uppercase text-text-muted">
+          Projetos
+        </h2>
+      ) : null}
 
-      {projects.length > 0 ? (
-        <ol className="mt-4 md:mt-8">
-          {projects.map((project) => (
+      {items.length > 0 ? (
+        <ol className={showHeading ? "mt-4 md:mt-8" : undefined}>
+          {items.map((project) => (
             <ProjectItem key={project.name} project={project} />
           ))}
         </ol>

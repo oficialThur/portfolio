@@ -161,6 +161,18 @@ a {
   border-top: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
 }
 
+/* No fluxo plano, projetos consecutivos já se separam pelo border-bottom
+   do item — o divisor de seção entre eles seria uma linha dupla, e o
+   padding-block de 80px quebraria a lista numa sequência de páginas. */
+.spatial-section[data-nav="Projetos"] + .spatial-section[data-nav="Projetos"] {
+  border-top: 0;
+  padding-block-start: 0;
+}
+
+.spatial-section[data-nav="Projetos"]:has(+ .spatial-section[data-nav="Projetos"]) {
+  padding-block-end: 0;
+}
+
 /* Spatial: trilha de scroll real (uma viewport por seção) + palco fixo.
    As seções coexistem empilhadas; as poses (transform/blur/opacity) vêm do JS. */
 @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
@@ -189,6 +201,12 @@ a {
 
   .spatial-section + .spatial-section {
     border-top: 0;
+  }
+
+  /* No palco espacial cada projeto já é um plano — o border-bottom do item
+     (feito para lista) vira uma linha órfã no terço inferior da viewport. */
+  .spatial-section[data-nav="Projetos"] .border-b {
+    border-bottom-color: transparent;
   }
 }
 

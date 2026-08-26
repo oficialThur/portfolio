@@ -24,6 +24,8 @@ const secretKey = process.env.SECRET_KEY;
 
 app.use(express.json());
 
+// Rotas de login
+
 app.post("/login", async (req, res) => {
     const {email, password} = req.body;
     
@@ -73,6 +75,127 @@ function authMiddleware(req, res, next){
         return res.status(401).json({msg:"Token inválido"})
     }
 }
+
+// Rota de projeto - Admin
+
+function formatProjeto(projeto){
+    return {
+        id: projeto.id.toString(),
+        name: projeto.nome,
+        description: projeto.descricao,
+        link: projeto.link,
+        tecnologias: projeto.tecnologias?.map((pt) => ({
+            id: pt.tecnologia.id.toString(),
+            name: pt.tecnologia.nome,
+        })) ?? [],
+        createdAt: projeto.createdAt,
+        updatedAt: projeto.updatedAt,
+    }
+};
+
+app.get("/projetos", async (req, res) => {
+    try{
+        const projeto = await prisma.projeto.findMany({
+            include:{ tecnologias: { include: { tecnologia: true } } },
+            orderBy: { createdAt: 'desc' },
+        });
+        return res.status(200).json(projeto.map(formatProjeto));
+    } catch(error){
+        console.error("Erro ao buscar projetos:", error);
+        return res.status(500).json({msg:"Erro interno do servidor"})
+    }
+});
+
+app.post("/projetos", authMiddleware, async (req, res) => {
+    const { nome, descricao, link, tecnologias } = req.body;
+
+    if (!nome || !descricao || !link || !tecnologias){
+        return res.status(400).json({msg:"Nome, descrição, link e tecnologias são obrigatórios"})
+    } 
+
+    try{
+        const newProjeto = await prisma.projeto.create({
+            data:{
+                nome,
+                descricao,
+                link,
+                adminId: BigInt(req.admin),
+                tecnologias:{
+                    create: (tecnologias ?? []).map((nomeTecnologia) =>  ({
+                        tecnologia: {
+                            connectOrCreate: {
+                                where: { nome: nomeTecnologia },
+                                create: { nome: nomeTecnologia },
+                            },
+                        },
+                    })),
+                },
+            },
+            include:{ tecnologias: { include: { tecnologia: true } } },
+        });
+        return res.status(201).json(formatProjeto(newProjeto));
+    } catch(error){
+        console.error("Erro ao criar projeto:", error);
+        return res.status(500).json({msg:"Erro interno do servidor"})
+    }
+});
+
+app.put("/projetos/:id", authMiddleware, async (req, res) => {
+    const { nome, descricao, link, tecnologias } = req.body;
+    const id = BigInt(req.params.id);
+
+    try{
+        const existeProjeto = await prisma.projeto.findUnique({where: {id}});
+
+        if(!existeProjeto){
+            return res.status(404).json({msg:"Projeto não encontrado"})
+        } 
+
+        const projeto = await prisma.projeto.update({
+            where: {id},
+            data: {
+                ...(nome && { nome }),
+                ...(descricao && { descricao }),
+                ...(link && { link }),
+                ...(tecnologias && {
+                    tecnologias: {
+                        deleteMany: {},
+                        create: tecnologias.map((nomeTec) => ({
+                            tecnologia: {
+                                connectOrCreate: {
+                                    where: { nome: nomeTec },
+                                    create: { nome: nomeTec },
+                                },
+                            },
+                        })),
+                    },
+                }),
+            },
+            include: { tecnologias: { include: { tecnologia: true } } },
+        });
+        return res.status(200).json(formatProjeto(projeto));
+    } catch(error){
+        console.error("Erro ao atualizar projeto:", error);
+        return res.status(500).json({msg:"Erro interno do servidor"})
+    }
+});
+
+app.delete("/projetos/:id", authMiddleware, async (req, res) => {
+    const id = BigInt(req.params.id);
+
+    try{
+        const existeProjeto = await prisma.projeto.findUnique({where: {id}});
+        if(!existeProjeto){
+            return res.status(404).json({msg:"Projeto não encontrado"})
+        }
+
+        await prisma.projeto.delete({where: {id}});
+        return res.status(204).send();
+    } catch(error){
+        console.error("Erro ao deletar projeto:", error);
+        return res.status(500).json({msg:"Erro interno do servidor"})
+    }
+});
 
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);

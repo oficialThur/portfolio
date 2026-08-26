@@ -35,7 +35,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/admin" element={<AdminPage />} />
-        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/login" element={<AdminLoginPage />} />
       </Routes>
       <div className="grain" aria-hidden="true" />
       <PageLoader />

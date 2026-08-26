@@ -5,7 +5,8 @@
  * proporção e curvatura: o raio decai geometricamente (0.85^|t|, eco da
  * proporção áurea) e cada seção atravessa o palco numa diagonal alternada
  * (arco vertical com sinal próprio), de modo que a travessia Sobre →
- * Projetos → Contato curva o espaço em vez de deslizar em linha reta.
+ * Projetos (até 3 planos) → Contato curva o espaço em vez de deslizar
+ * em linha reta.
  *
  * t = progress - index
  *   t = 0   → primeiro plano (ativo):  scale 1 · blur 0 · opacity 1

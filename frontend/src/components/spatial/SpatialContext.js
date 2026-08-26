@@ -5,6 +5,7 @@ export const SpatialContext = createContext({
   progress: 0,
   activeIndex: 0,
   count: 3,
+  navItems: [],
   goTo: () => {},
 });
 

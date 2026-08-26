@@ -8,6 +8,7 @@ import { poseFor } from "./FibonacciMotion.js";
 export function SpatialSection({
   id,
   label,
+  nav,
   index,
   progress,
   enabled,
@@ -31,6 +32,7 @@ export function SpatialSection({
     <section
       id={id}
       aria-label={label}
+      data-nav={nav}
       inert={enabled && !isActive}
       className="spatial-section"
       style={style}

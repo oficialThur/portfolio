@@ -3,10 +3,10 @@ import { useSpatial } from "../spatial/SpatialContext.js";
 import { SPATIAL_QUERY } from "../spatial/ScrollController.js";
 import { site } from "@/data/site.js";
 
-const LINKS = [
-  { index: 0, id: "sobre", label: "Sobre" },
-  { index: 1, id: "projetos", label: "Projetos" },
-  { index: 2, id: "contato", label: "Contato" },
+const FALLBACK_LINKS = [
+  { id: "sobre", label: "Sobre", startIndex: 0, endIndex: 0 },
+  { id: "projetos", label: "Projetos", startIndex: 1, endIndex: 1 },
+  { id: "contato", label: "Contato", startIndex: 2, endIndex: 2 },
 ];
 
 /**
@@ -15,7 +15,8 @@ const LINKS = [
  * linhas (mobile). A seção ativa recebe um único indicador — a linha 16×1px.
  */
 export function Navigation() {
-  const { enabled, activeIndex, goTo } = useSpatial();
+  const { enabled, activeIndex, goTo, navItems } = useSpatial();
+  const links = navItems.length > 0 ? navItems : FALLBACK_LINKS;
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleRef = useRef(null);
   const overlayRef = useRef(null);
@@ -143,14 +144,15 @@ export function Navigation() {
         className="fixed right-6 top-20 z-[110] hidden md:block lg:right-12"
       >
         <ul className="flex flex-col items-end gap-4">
-          {LINKS.map((link) => {
-            const isActive = activeIndex === link.index;
+          {links.map((link) => {
+            const isActive =
+              activeIndex >= link.startIndex && activeIndex <= link.endIndex;
             return (
               <li key={link.id}>
                 <a
                   href={`#${link.id}`}
                   aria-current={isActive ? "location" : undefined}
-                  onClick={(event) => handleClick(event, link.index)}
+                  onClick={(event) => handleClick(event, link.startIndex)}
                   className={linkClass(isActive)}
                 >
                   {link.label}
@@ -175,14 +177,15 @@ export function Navigation() {
             : "invisible pointer-events-none opacity-0"
         }`}
       >
-        {LINKS.map((link) => {
-          const isActive = activeIndex === link.index;
+        {links.map((link) => {
+          const isActive =
+            activeIndex >= link.startIndex && activeIndex <= link.endIndex;
           return (
             <a
               key={link.id}
               href={`#${link.id}`}
               aria-current={isActive ? "location" : undefined}
-              onClick={(event) => handleClick(event, link.index)}
+              onClick={(event) => handleClick(event, link.startIndex)}
               tabIndex={menuOpen ? 0 : -1}
               className={`flex min-h-11 items-center text-heading-md transition-colors duration-200 ${
                 isActive
