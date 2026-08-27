@@ -4,6 +4,7 @@ import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 
 dotenv.config({ path: '../env/.env' });
 
@@ -282,6 +283,41 @@ app.delete("/subtitulos/:id", authMiddleware, async (req, res) => {
     } catch(error){
         console.error("Erro ao deletar subtitulo:", error);
         return res.status(500).json({msg:"Erro interno do servidor"})
+    }
+});
+
+// Rotas de nodemailer - Contato
+
+const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT) || 465,
+    secure: true,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
+app.post("/enviando-email", async (req, res) => {
+    const { nome, sobre, email, mensagem } = req.body;
+
+    if (!nome || !sobre || !email || !mensagem) {
+        return res.status(400).json({ msg: "Nome, sobre, email e mensagem são obrigatórios" });
+    }
+
+    try {
+        const info = await transporter.sendMail({
+            from: `"Portfólio" <${process.env.EMAIL_USER}>`,
+            to: process.env.EMAIL_USER,
+            replyTo: email,
+            subject: `[Portfólio] ${sobre}`,
+            text: `Nome: ${nome}\nEmail: ${email}\nSobre: ${sobre}\n\nMensagem:\n${mensagem}`,
+        });
+
+        return res.status(200).json({ msg: "Email enviado com sucesso", messageId: info.messageId });
+    } catch (error) {
+        console.error("Erro ao enviar email:", error);
+        return res.status(500).json({ msg: "Erro interno do servidor" });
     }
 });
 

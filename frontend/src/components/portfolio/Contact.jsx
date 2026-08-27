@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { contact } from "@/data/site.js";
+import api from "@/service/api";
 
 const SOCIALS = [
   { label: "GitHub", href: contact.github, external: true },
@@ -16,17 +18,35 @@ const inputClass =
 const labelClass =
   "mb-2 block font-mono text-label-md uppercase text-text-muted";
 
-/**
- * Endpoint minimalista: formulário à esquerda e, à direita, as redes como
- * texto puro (sem ícones) no mesmo estilo da stack dos projetos — mono,
- * maiúsculas, muted. Sem headline editorial (removido a pedido do dono,
- * 2026-08-16).
- *
- * A ação de envio fica propositalmente vazia: o dono vai escrever o backend.
- * Os campos já têm `name` e validação nativa prontos para plugar (ex.:
- * action="/api/contact" method="post" ou um fetch no onSubmit).
- */
+const errorClass = "font-mono text-label-md text-[#EF4444]";
+const successClass = "font-mono text-label-md text-[#22C55E]";
+
 export function Contact() {
+  const [status, setStatus] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setStatus(null);
+
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
+
+    setIsSubmitting(true);
+    try {
+      await api.post("/enviando-email", data);
+      setStatus({ type: "success", message: "Mensagem enviada com sucesso." });
+      form.reset();
+    } catch {
+      setStatus({
+        type: "error",
+        message: "Não foi possível enviar. Tente novamente.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <div>
       <h2 className="font-mono text-label-md uppercase text-text-muted">
@@ -34,11 +54,7 @@ export function Contact() {
       </h2>
 
       <div className="mt-8 grid gap-12 md:mt-12 md:grid-cols-12 md:gap-6">
-        {/* TODO(owner): implementar a ação de envio (backend próprio). */}
-        <form
-          className="md:col-span-7"
-          onSubmit={(event) => event.preventDefault()}
-        >
+        <form className="md:col-span-7" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-6">
             <div>
               <label htmlFor="contato-nome" className={labelClass}>
@@ -67,6 +83,18 @@ export function Contact() {
               />
             </div>
             <div>
+              <label htmlFor="contato-sobre" className={labelClass}>
+                Sobre
+              </label>
+              <input
+                id="contato-sobre"
+                name="sobre"
+                type="text"
+                required
+                className={inputClass}
+              />
+            </div>
+            <div>
               <label htmlFor="contato-mensagem" className={labelClass}>
                 Mensagem
               </label>
@@ -79,10 +107,21 @@ export function Contact() {
             </div>
             <button
               type="submit"
-              className="h-11 w-fit cursor-pointer rounded-sm bg-text-primary px-6 text-body-md font-medium text-ink transition-opacity duration-200 hover:opacity-90"
+              disabled={isSubmitting}
+              className="h-11 w-fit cursor-pointer rounded-sm bg-text-primary px-6 text-body-md font-medium text-ink transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Enviar
+              {isSubmitting ? "Enviando…" : "Enviar"}
             </button>
+            {status && (
+              <p
+                role="status"
+                className={
+                  status.type === "success" ? successClass : errorClass
+                }
+              >
+                {status.message}
+              </p>
+            )}
           </div>
         </form>
 
