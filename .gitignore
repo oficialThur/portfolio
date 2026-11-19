@@ -15,7 +15,6 @@ frontend/.next/
 
 # backend
 backend/dist/
-backend/src/generated/
 
 # production
 build/
