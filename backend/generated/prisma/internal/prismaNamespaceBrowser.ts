@@ -79,7 +79,8 @@ export const AdminScalarFieldEnum = {
   email: 'email',
   name: 'name',
   password: 'password',
-  createAr: 'createAr',
+  tokenVersion: 'tokenVersion',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 

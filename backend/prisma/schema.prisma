@@ -1,7 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Schema do portfólio. Toda alteração exige uma migration (prisma migrate dev).
+// O client é gerado em ../generated/prisma e versionado de propósito: a imagem
+// de produção não roda `prisma generate`.
 
 generator client {
   provider            = "prisma-client"
@@ -14,43 +13,45 @@ datasource db {
 }
 
 model Admin {
-  id BigInt @id @default(autoincrement())
-  email String @unique 
-  name String? 
-  password String
+  id           BigInt  @id @default(autoincrement())
+  email        String  @unique
+  name         String?
+  password     String
+  // Incrementado no logout: invalida todos os JWTs emitidos antes.
+  tokenVersion Int     @default(0)
 
-  projeto Projeto[]
+  projeto  Projeto[]
   subtitle Subtitle[]
 
-  createAr DateTime @default(now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("admins")
 }
 
 model Projeto {
-  id          BigInt   @id @default(autoincrement())
-  nome        String
-  descricao   String
-  link        String
+  id        BigInt @id @default(autoincrement())
+  nome      String
+  descricao String @db.Text
+  link      String @db.VarChar(2048)
 
-  adminId     BigInt
-  admin       Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId BigInt
+  admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   tecnologias ProjetoTecnologia[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("projetos")
 }
 
 model Subtitle {
-  id        BigInt   @id @default(autoincrement())
-  subtitle  String
+  id       BigInt @id @default(autoincrement())
+  subtitle String @db.Text
 
-  adminId   BigInt
-  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId BigInt
+  admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,10 +60,10 @@ model Subtitle {
 }
 
 model Tecnologia {
-  id        BigInt   @id @default(autoincrement())
-  nome      String   @unique
+  id   BigInt @id @default(autoincrement())
+  nome String @unique
 
-  projetos  ProjetoTecnologia[]
+  projetos ProjetoTecnologia[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -74,8 +75,8 @@ model ProjetoTecnologia {
   projetoId    BigInt
   tecnologiaId BigInt
 
-  projeto      Projeto    @relation(fields: [projetoId], references: [id], onDelete: Cascade)
-  tecnologia   Tecnologia @relation(fields: [tecnologiaId], references: [id], onDelete: Cascade)
+  projeto    Projeto    @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  tecnologia Tecnologia @relation(fields: [tecnologiaId], references: [id], onDelete: Cascade)
 
   @@id([projetoId, tecnologiaId])
   @@map("projeto_tecnologias")
