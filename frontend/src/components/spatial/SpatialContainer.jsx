@@ -104,7 +104,7 @@ export function SpatialContainer({ navigation, sections }) {
         style={{ "--section-count": sections.length }}
       >
         {navigation}
-        <main className="spatial-viewport">
+        <main id="conteudo" tabIndex={-1} className="spatial-viewport">
           {sections.map((section, index) => (
             <SpatialSection
               key={section.id}

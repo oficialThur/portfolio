@@ -1,13 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { clearToken } from "@/service/auth";
+import api from "@/service/api";
 import { buttonGhost } from "./styles";
 
 export function AdminHeader() {
   const navigate = useNavigate();
 
-  function handleLogout() {
-    clearToken();
-    navigate("/login", { replace: true });
+  async function handleLogout() {
+    try {
+      await api.post("/logout");
+    } finally {
+      navigate("/login", { replace: true });
+    }
   }
 
   return (

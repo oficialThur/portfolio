@@ -1,9 +1,11 @@
+import { useEffect, useRef } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { PageLoader } from "./components/PageLoader.jsx";
 import { RequireAuth } from "./components/RequireAuth.jsx";
 import { HomePage } from "./pages/HomePage.jsx";
 import { AdminPage } from "./pages/AdminPage.jsx";
 import { AdminLoginPage } from "./pages/AdminLoginPage.jsx";
+import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 
 const directionContract = `<!--
   DIRECTION CONTRACT — portfolio /
@@ -41,9 +43,53 @@ function PortfolioAtmosphere() {
   );
 }
 
+/**
+ * Em SPA a troca de rota não move o foco. Sem isso, quem usa leitor de tela
+ * continua "preso" no link antigo. Foca o <main> da nova página assim que ele
+ * existe (Admin passa por um estado de verificação antes de renderizar).
+ */
+function RouteFocus() {
+  const { pathname } = useLocation();
+  const previousPath = useRef(pathname);
+
+  useEffect(() => {
+    // StrictMode roda o efeito duas vezes no mount; comparar o path evita
+    // roubar o foco da página no carregamento inicial.
+    if (previousPath.current === pathname) {
+      return undefined;
+    }
+    previousPath.current = pathname;
+
+    let frame;
+    let attempts = 0;
+
+    function focusMain() {
+      const main = document.querySelector("main");
+
+      if (main) {
+        main.focus({ preventScroll: true });
+        return;
+      }
+
+      if (attempts < 300) {
+        attempts += 1;
+        frame = requestAnimationFrame(focusMain);
+      }
+    }
+
+    frame = requestAnimationFrame(focusMain);
+    return () => cancelAnimationFrame(frame);
+  }, [pathname]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <>
+      <a href="#conteudo" className="skip-link">
+        Pular para o conteúdo
+      </a>
       <div hidden dangerouslySetInnerHTML={{ __html: directionContract }} />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -56,7 +102,10 @@ export default function App() {
           }
         />
         <Route path="/login" element={<AdminLoginPage />} />
+        {/* Catch-all: sem isso, qualquer URL desconhecida renderiza tela em branco. */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <RouteFocus />
       <PortfolioAtmosphere />
     </>
   );

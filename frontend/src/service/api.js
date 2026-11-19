@@ -1,26 +1,16 @@
 import axios from "axios";
-import { clearToken, getToken } from "./auth";
 
 const api = axios.create({
   baseURL: "/api",
-});
-
-api.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+  // A sessão vive num cookie httpOnly; o navegador envia sozinho.
+  withCredentials: true,
 });
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      clearToken();
-      if (window.location.pathname !== "/login") {
-        window.location.assign("/login");
-      }
+    if (error.response?.status === 401 && window.location.pathname !== "/login") {
+      window.location.assign("/login");
     }
     return Promise.reject(error);
   },

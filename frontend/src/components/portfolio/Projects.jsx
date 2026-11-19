@@ -28,6 +28,7 @@ function ProjectItem({ project }) {
               className="mt-3 w-fit text-text-primary hover:underline"
             >
               {project.linkLabel ?? "GitHub"}
+              <span className="sr-only"> (abre em nova aba)</span>
             </a>
           ) : null}
         </div>

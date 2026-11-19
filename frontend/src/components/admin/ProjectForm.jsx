@@ -26,11 +26,24 @@ const STARTER_TECHS = [
 ];
 
 const projectSchema = z.object({
-  nome: z.string().trim().min(1, { error: "Informe o nome." }),
-  descricao: z.string().trim().min(1, { error: "Informe a descrição." }),
-  link: z.url({ error: "Informe um link válido." }),
+  nome: z
+    .string()
+    .trim()
+    .min(1, { error: "Informe o nome." })
+    .max(120, { error: "Use no máximo 120 caracteres." }),
+  descricao: z
+    .string()
+    .trim()
+    .min(1, { error: "Informe a descrição." })
+    .max(5000, { error: "Use no máximo 5000 caracteres." }),
+  link: z
+    .url({
+      protocol: /^https?$/,
+      error: "Informe um link http:// ou https:// válido.",
+    })
+    .max(2048, { error: "Use no máximo 2048 caracteres." }),
   tecnologias: z
-    .array(z.string())
+    .array(z.string().max(60, { error: "Use no máximo 60 caracteres." }))
     .min(1, { error: "Selecione ao menos uma tecnologia." }),
 });
 
@@ -121,6 +134,13 @@ export function ProjectForm({
         link: next.link?.[0],
         tecnologias: next.tecnologias?.[0],
       });
+
+      const firstInvalid = Object.keys(next)[0];
+      if (firstInvalid === "tecnologias") {
+        event.currentTarget.querySelector("fieldset button")?.focus();
+      } else {
+        event.currentTarget.elements.namedItem(firstInvalid)?.focus();
+      }
       return;
     }
 
@@ -139,6 +159,7 @@ export function ProjectForm({
           name="nome"
           type="text"
           required
+          maxLength={120}
           autoComplete="off"
           value={values.nome}
           onChange={handleChange}
@@ -161,6 +182,7 @@ export function ProjectForm({
           id={descriptionId}
           name="descricao"
           required
+          maxLength={5000}
           value={values.descricao}
           onChange={handleChange}
           aria-invalid={Boolean(fieldErrors.descricao)}
@@ -189,6 +211,7 @@ export function ProjectForm({
           name="link"
           type="url"
           required
+          maxLength={2048}
           placeholder="https://"
           value={values.link}
           onChange={handleChange}
@@ -239,6 +262,7 @@ export function ProjectForm({
             <input
               id={extraId}
               type="text"
+              maxLength={60}
               value={newTech}
               onChange={(event) => setNewTech(event.target.value)}
               onKeyDown={(event) => {

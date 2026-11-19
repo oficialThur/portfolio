@@ -23,6 +23,11 @@
   --color-text-secondary: #d6d6d6;
   --color-text-muted: #a8aaac;
   --color-border: #6e7476;
+  /* Controles precisam de 3:1 contra o canvas (WCAG 1.4.11). */
+  --color-control: #8b9193;
+  /* Mensagens de erro/sucesso em texto pequeno: >= 4.5:1. */
+  --color-danger: #fca5a5;
+  --color-success: #4ade80;
 
   /* Type scale */
   --text-display-xl: clamp(48px, 8vw, 112px);
@@ -91,9 +96,37 @@ body {
 }
 
 :focus-visible {
-  outline: 1px solid var(--color-text-primary);
-  outline-offset: 4px;
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 3px;
   border-radius: var(--radius-sm);
+}
+
+/* Skip link: primeiro alvo do Tab, visível só quando focado. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-white);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-label-md);
+  letter-spacing: var(--text-label-md--letter-spacing);
+  text-transform: uppercase;
+  transform: translateY(-200%);
+  transition: transform 150ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
 }
 
 html {

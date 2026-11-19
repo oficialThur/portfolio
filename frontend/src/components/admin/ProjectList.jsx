@@ -9,7 +9,7 @@ export function ProjectCard({ project, onEdit, onDelete }) {
 
   return (
     <article className="rounded-md border border-border p-6 transition-colors duration-200 hover:border-text-muted">
-      <h2 className="text-heading-md">{project.name}</h2>
+      <h3 className="text-heading-md">{project.name}</h3>
       <p className="mt-2 text-body-md text-text-secondary">
         {project.description}
       </p>

@@ -95,11 +95,19 @@ export function Navigation() {
   );
 
   const handleClick = (event, index) => {
+    const wasOpen = menuOpen;
+
     if (enabled) {
       event.preventDefault();
       goTo(index);
     }
+
     setMenuOpen(false);
+
+    // Ao fechar o menu, devolve o foco ao botão que o abriu.
+    if (wasOpen) {
+      requestAnimationFrame(() => toggleRef.current?.focus());
+    }
   };
 
   return (

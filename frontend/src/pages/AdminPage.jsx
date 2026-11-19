@@ -151,7 +151,11 @@ export function AdminPage() {
       <div hidden dangerouslySetInnerHTML={{ __html: directionContract }} />
       <AdminHeader />
 
-      <main className="mx-auto max-w-[1200px] px-6 py-12 md:px-8 md:py-16">
+      <main
+        id="conteudo"
+        tabIndex={-1}
+        className="mx-auto max-w-[1200px] px-6 py-12 md:px-8 md:py-16"
+      >
         <SubtitlePanel />
 
         <section className="mt-16" aria-labelledby="admin-projetos">
@@ -178,7 +182,7 @@ export function AdminPage() {
 
         {feedback && (
           <p
-            role="status"
+            role={feedback.type === "error" ? "alert" : "status"}
             className={`mt-4 ${
               feedback.type === "success" ? successClass : errorClass
             }`}

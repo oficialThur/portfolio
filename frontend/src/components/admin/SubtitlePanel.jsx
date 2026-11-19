@@ -15,7 +15,11 @@ import {
 } from "./styles";
 
 const subtitleSchema = z.object({
-  subtitle: z.string().trim().min(1, { error: "Informe o texto do Sobre." }),
+  subtitle: z
+    .string()
+    .trim()
+    .min(1, { error: "Informe o texto do Sobre." })
+    .max(2000, { error: "Use no máximo 2000 caracteres." }),
 });
 
 export function SubtitlePanel() {
@@ -61,6 +65,7 @@ export function SubtitlePanel() {
     if (!result.success) {
       const { fieldErrors } = z.flattenError(result.error);
       setFieldError(fieldErrors.subtitle?.[0] ?? "");
+      document.getElementById(fieldId)?.focus();
       return;
     }
 
@@ -128,6 +133,7 @@ export function SubtitlePanel() {
             id={fieldId}
             name="subtitle"
             required
+            maxLength={2000}
             value={value}
             onChange={(event) => {
               setValue(event.target.value);

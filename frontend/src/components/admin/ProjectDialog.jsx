@@ -96,7 +96,7 @@ export function ConfirmDeleteDialog({
           : "Essa ação não pode ser desfeita."}
       </p>
       {error && (
-        <p role="alert" className="mt-4 font-mono text-label-md text-[#EF4444]">
+        <p role="alert" className="mt-4 font-mono text-label-md text-danger">
           {error}
         </p>
       )}

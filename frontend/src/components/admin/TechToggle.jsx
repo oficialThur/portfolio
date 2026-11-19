@@ -22,7 +22,7 @@ export function TechToggle({ options, selected, onChange }) {
               className={`min-h-11 cursor-pointer rounded-full border px-3 font-mono text-label-md uppercase transition-colors duration-200 ${
                 isSelected
                   ? "border-text-primary text-text-primary"
-                  : "border-border text-text-muted hover:border-text-muted hover:text-text-secondary"
+                  : "border-control text-text-muted hover:border-text-muted hover:text-text-secondary"
               }`}
             >
               {name}

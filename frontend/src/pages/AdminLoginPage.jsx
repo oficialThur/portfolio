@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useNoIndex } from "@/hooks/useNoIndex";
 import api from "@/service/api";
-import { getToken, setToken } from "@/service/auth";
+import { getSession } from "@/service/auth";
 
 
 const loginSchema = z.object({
@@ -15,12 +15,12 @@ const loginSchema = z.object({
 });
 
 const inputClass =
-  "h-11 w-full rounded-md border border-border bg-transparent px-3.5 py-2.5 text-body-md text-text-primary transition-colors duration-200 focus:border-text-muted";
+  "h-11 w-full rounded-md border border-control bg-transparent px-3.5 py-2.5 text-body-md text-text-primary transition-colors duration-200 focus:border-text-muted";
 
 const labelClass =
   "mb-2 block font-mono text-label-md uppercase text-text-muted";
 
-const errorClass = "font-mono text-label-md text-[#EF4444]";
+const errorClass = "font-mono text-label-md text-danger";
 
 /**
  * Tela de login do admin (DESIGN.md › Admin Area › Login Screen): card
@@ -40,9 +40,20 @@ export function AdminLoginPage() {
   const [authError, setAuthError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (getToken()) {
-    return <Navigate to="/admin" replace />;
-  }
+  // Se o cookie de sessão ainda vale, manda direto para o painel.
+  useEffect(() => {
+    let active = true;
+
+    getSession().then((admin) => {
+      if (active && admin) {
+        navigate("/admin", { replace: true });
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [navigate]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -61,6 +72,9 @@ export function AdminLoginPage() {
         email: fieldErrors.email?.[0],
         password: fieldErrors.password?.[0],
       });
+
+      const firstInvalid = fieldErrors.email ? "login-email" : "login-password";
+      document.getElementById(firstInvalid)?.focus();
       return;
     }
 
@@ -68,12 +82,13 @@ export function AdminLoginPage() {
     setAuthError("");
     setIsSubmitting(true);
     try {
-      const { data } = await api.post("/login", result.data);
-      setToken(data.token);
+      await api.post("/login", result.data);
       navigate("/admin");
     } catch (error) {
       if (error.response?.status === 401) {
         setAuthError("Email ou senha incorretos.");
+      } else if (error.response?.status === 429) {
+        setAuthError("Muitas tentativas. Tente novamente em alguns minutos.");
       } else {
         setAuthError("Erro ao fazer login.");
       }
@@ -83,7 +98,11 @@ export function AdminLoginPage() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-6">
+    <main
+      id="conteudo"
+      tabIndex={-1}
+      className="flex min-h-dvh items-center justify-center px-6"
+    >
       <div className="w-full max-w-[400px] rounded-md border border-border p-10">
         <h1 className="text-center font-mono text-label-md uppercase text-text-primary">
           Admin
