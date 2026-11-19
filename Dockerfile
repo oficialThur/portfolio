@@ -31,7 +31,7 @@ COPY backend/package.json backend/package-lock.json ./
 RUN npm install
 COPY backend/ ./
 EXPOSE 3001
-CMD ["npx", "tsx", "app.js"]
+CMD ["npm", "run", "dev"]
 
 FROM node:20-alpine AS backend-production
 WORKDIR /app
@@ -40,4 +40,7 @@ RUN npm ci --omit=dev
 COPY backend/ ./
 ENV NODE_ENV=production
 EXPOSE 4000
-CMD ["node", "app.js"]
+# O Prisma 7 gera o client em TypeScript (generated/prisma/*.ts), então o Node
+# puro não resolve os imports. O tsx (dependência de produção) executa o app.js
+# e resolve os módulos TS sem precisar de um passo extra de compilação.
+CMD ["npm", "start"]

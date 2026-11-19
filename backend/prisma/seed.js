@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: '../env/.env' });
+import { fileURLToPath } from 'node:url';
+// seed.js fica em backend/prisma/, então sobe dois níveis até a raiz do repo.
+dotenv.config({ path: fileURLToPath(new URL('../../env/.env', import.meta.url)) });
 
 import { PrismaClient } from '../generated/prisma/client.js';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
@@ -7,7 +9,7 @@ import bcrypt from 'bcryptjs';
 
 const adapter = new PrismaMariaDb({
     host: process.env.DATABASE_HOST,
-    port: Number(process.env.DATABASE_PORT ?? 3306),
+    port: Number(process.env.DATABASE_PORT) || 3306,
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,

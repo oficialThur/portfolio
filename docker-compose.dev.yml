@@ -13,6 +13,7 @@ services:
     environment:
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: "true"
+      # Alvo do proxy /api do Vite (roda dentro do container).
       VITE_API_URL: http://backend:3001
     depends_on:
       - backend
@@ -30,28 +31,37 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+    # Opcional: o projeto sobe sem esse arquivo. Use env/.env apenas para
+    # sobrescrever EMAIL_*, SECRET_KEY e afins.
     env_file:
-      - ./env/.env
+      - path: ./env/.env
+        required: false
     environment:
       NODE_ENV: development
       PORT: "3001"
-      DATABASE_URL: "mysql://root:root@db:3306/portfolio_db"
+      # Host/porta internos da rede do compose (o MySQL publica 3308 no host).
       DATABASE_HOST: db
       DATABASE_PORT: "3306"
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+      DATABASE_NAME: portfolio_db
+      DATABASE_URL: mysql://root:root@db:3306/portfolio_db
     depends_on:
       db:
         condition: service_healthy
     working_dir: /app
+    command: npm run dev
 
   db:
     image: mysql:8.0
     container_name: portfolio-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: portfolio_db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-portfolio_db}
+    # 3308 no host para não colidir com outros MySQL locais (ex.: 3307).
     ports:
-      - "3307:3306"
+      - "3308:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:

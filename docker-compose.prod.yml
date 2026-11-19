@@ -1,3 +1,5 @@
+name: portfolio-prod
+
 services:
   frontend:
     build:
@@ -7,11 +9,12 @@ services:
       args:
         VITE_API_URL: ${VITE_API_URL:-/api}
     container_name: portfolio-frontend-prod
-    restart: always
+    restart: unless-stopped
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     environment:
       NODE_ENV: production
 
@@ -21,9 +24,55 @@ services:
       dockerfile: Dockerfile
       target: backend-production
     container_name: portfolio-backend-prod
-    restart: always
+    restart: unless-stopped
     expose:
       - "4000"
+    env_file:
+      - ./env/.env
     environment:
       NODE_ENV: production
       PORT: "4000"
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  # Roda uma vez por deploy, antes do backend: aplica migrations pendentes.
+  # A imagem de produção inclui a CLI do Prisma (dependência de produção).
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-production
+    env_file:
+      - ./env/.env
+    environment:
+      NODE_ENV: production
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
+    command: ["npx", "prisma", "migrate", "deploy"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  db:
+    image: mysql:8.0
+    container_name: portfolio-db-prod
+    restart: unless-stopped
+    env_file:
+      - ./env/.env
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  db_data:
