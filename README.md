@@ -4,6 +4,8 @@ Portfólio pessoal de desenvolvedor fullstack, com experiência pública em nave
 espacial (Sobre → Projetos → Contato) e uma área administrativa para gerenciar o texto
 do Sobre e os projetos.
 
+**Site:** https://devthur.dev
+
 ## Stack
 
 | Camada | Tecnologias |

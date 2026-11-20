@@ -318,7 +318,7 @@ O mesmo fluxo é ensaiado localmente antes de repetir na Azure.
 
 - Resource group: `rg-portfolio-prod` em **Chile Central**.
 - VM: `Standard_B2ats_v2` (2 vCPU/1 GB), Ubuntu 24.04, 30 GB, IP `68.211.145.157`.
-- Domínio temporário: `https://68.211.145.157.sslip.io` (Let's Encrypt).
+- Domínio final: `https://devthur.dev` e `https://www.devthur.dev` (Let's Encrypt).
 - MySQL: container 8.0 com volume, tuning `innodb-buffer-pool-size=128M`.
 - **MySQL gerenciado free não foi usado**: a criação falhou com erro interno e
   o CLI avisou “Paid Tier”; nenhum servidor gerenciado ficou criado.
