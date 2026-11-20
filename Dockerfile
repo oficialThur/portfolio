@@ -30,7 +30,9 @@ WORKDIR /app
 COPY backend/package.json backend/package-lock.json ./
 RUN npm install
 COPY backend/ ./
+RUN chmod +x docker-entrypoint.sh
 EXPOSE 3001
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["npm", "run", "dev"]
 
 FROM node:20-alpine AS backend-production
@@ -38,9 +40,11 @@ WORKDIR /app
 COPY backend/package.json backend/package-lock.json ./
 RUN npm ci --omit=dev
 COPY backend/ ./
+RUN chmod +x docker-entrypoint.sh
 ENV NODE_ENV=production
 EXPOSE 4000
 # O Prisma 7 gera o client em TypeScript (generated/prisma/*.ts), então o Node
 # puro não resolve os imports. O tsx (dependência de produção) executa o app.js
 # e resolve os módulos TS sem precisar de um passo extra de compilação.
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["npm", "start"]

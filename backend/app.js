@@ -20,6 +20,9 @@ const adapterOptions = {
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
     connectionLimit: 5,
+    // MySQL 8 com caching_sha2_password precisa buscar a chave pública
+    // quando a conexão não usa TLS (MySQL local no Docker).
+    allowPublicKeyRetrieval: true,
 };
 
 // Azure MySQL e outros bancos gerenciados exigem TLS. No dev fica desligado.
@@ -60,10 +63,10 @@ app.disable('x-powered-by');
 app.use(helmet());
 app.use(cookieParser());
 
-// Em produção o Express fica atrás do nginx: confiar no primeiro proxy faz o
-// rate limit enxergar o IP real do cliente (X-Forwarded-For).
+// Em produção o Express fica atrás de proxies (Caddy e nginx). O número de
+// hops confiáveis é configurável para o rate limit enxergar o IP real.
 if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', 1);
+    app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
 }
 
 app.use(express.json());
