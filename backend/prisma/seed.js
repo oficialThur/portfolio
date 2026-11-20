@@ -7,13 +7,19 @@ import { PrismaClient } from '../generated/prisma/client.js';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import bcrypt from 'bcryptjs';
 
-const adapter = new PrismaMariaDb({
+const adapterOptions = {
     host: process.env.DATABASE_HOST,
     port: Number(process.env.DATABASE_PORT) || 3306,
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
-});
+};
+
+if (process.env.DATABASE_SSL === 'true') {
+    adapterOptions.ssl = { rejectUnauthorized: true };
+}
+
+const adapter = new PrismaMariaDb(adapterOptions);
 
 const prisma = new PrismaClient({ adapter });
 

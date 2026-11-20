@@ -13,14 +13,21 @@ import nodemailer from 'nodemailer';
 // Relativo ao arquivo (não ao cwd), então funciona de qualquer diretório.
 dotenv.config({ path: fileURLToPath(new URL('../env/.env', import.meta.url)) });
 
-const adapter = new PrismaMariaDb({
+const adapterOptions = {
     host: process.env.DATABASE_HOST,
     port: Number(process.env.DATABASE_PORT) || 3306,
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
     connectionLimit: 5,
-});
+};
+
+// Azure MySQL e outros bancos gerenciados exigem TLS. No dev fica desligado.
+if (process.env.DATABASE_SSL === 'true') {
+    adapterOptions.ssl = { rejectUnauthorized: true };
+}
+
+const adapter = new PrismaMariaDb(adapterOptions);
 
 const app = express();
 const prisma = new PrismaClient({adapter});
