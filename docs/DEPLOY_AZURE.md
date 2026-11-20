@@ -1,8 +1,16 @@
 # Deploy Azure — runbook (Azure for Students)
 
-> Caminho escolhido: **A — free por 12 meses**.
-> VM `B1s` (1 GB) para backend/nginx/Caddy + **Azure Database for MySQL Flexible Server B1ms free** (2 GB).
-> O MySQL fica fora da VM para não estourar a memória.
+> **Execução real em 2026-11-20:** a assinatura Students tinha uma policy que
+> permitia apenas `mexicocentral`, `northcentralus`, `eastus`, `chilecentral` e
+> `canadacentral`; as VMs B-series estavam bloqueadas em Brazil South/East US.
+> A VM free escolhida foi **`Standard_B2ats_v2` em Chile Central**.
+> O MySQL gerenciado free não foi criado (erro interno + aviso de “Paid Tier”),
+> então o fallback adotado foi **MySQL 8 no container da VM**, com swap e
+> `deploy/azure/docker-compose.override.yml`.
+
+> Caminho original: **A — free por 12 meses**.
+> A VM roda backend/nginx/Caddy; o MySQL fica fora da VM quando o gerenciado
+> free está disponível. A execução real usou o fallback descrito abaixo.
 
 ## Arquitetura
 
@@ -10,13 +18,15 @@
 Internet
   │ 443 (Caddy + Let's Encrypt)
   ▼
-Azure VM B1s (Ubuntu 24.04)
+Azure VM B2ats_v2 (Ubuntu 24.04, 1 GB + 2 GB swap)
   └── Docker Compose
         ├── Caddy :443 → nginx :3000
         ├── frontend (nginx + Vite)
-        └── backend (Express) ──TLS──► Azure MySQL B1ms
-                                        (banco gerenciado)
+        └── backend (Express) ──► MySQL 8 (container + volume)
 ```
+
+Alternativa com banco gerenciado: trocar o MySQL do container por
+`Azure Database for MySQL B1ms` e ativar `DATABASE_SSL=true`.
 
 ## Limites e custos
 
@@ -303,3 +313,21 @@ deploy/sim/sim-up.sh
 - Credenciais: `env/.env.sim`
 
 O mesmo fluxo é ensaiado localmente antes de repetir na Azure.
+
+## Resultado da execução real (2026-11-20)
+
+- Resource group: `rg-portfolio-prod` em **Chile Central**.
+- VM: `Standard_B2ats_v2` (2 vCPU/1 GB), Ubuntu 24.04, 30 GB, IP `68.211.145.157`.
+- Domínio temporário: `https://68.211.145.157.sslip.io` (Let's Encrypt).
+- MySQL: container 8.0 com volume, tuning `innodb-buffer-pool-size=128M`.
+- **MySQL gerenciado free não foi usado**: a criação falhou com erro interno e
+  o CLI avisou “Paid Tier”; nenhum servidor gerenciado ficou criado.
+- Frontend publicado apenas em `127.0.0.1:3000`; Caddy na 443.
+- Testes: home/API 200, login/cookie `Secure`/`HttpOnly`, CRUD, 404, contato real
+  via Gmail, backup + restore (6 tabelas) e reboot completo.
+- O reboot revelou um bug de ordem: o backend subia antes do MySQL. Correções:
+  - `backend/docker-entrypoint.sh` espera o MySQL responder e ter uptime ≥ 10s;
+  - `allowPublicKeyRetrieval: true` para `caching_sha2_password`;
+  - `TRUST_PROXY=2` (Caddy + nginx) para o rate limit ver o IP real.
+- Após as correções, o reboot sobe o backend **healthy** sem loop.
+- Conteúdo ainda pendente: projetos reais e texto do Sobre.
