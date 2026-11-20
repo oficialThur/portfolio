@@ -1,0 +1,84 @@
+services:
+  frontend:
+    container_name: portfolio-frontend-sim
+    # O Caddy fala com o frontend pela rede interna; não publicamos :3000.
+    ports: !reset []
+
+  backend:
+    container_name: portfolio-backend-sim
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
+      DATABASE_USER: portfolio
+      DATABASE_PASSWORD: ${SIM_DB_PASSWORD:?rode deploy/sim/sim-up.sh}
+      DATABASE_NAME: portfolio_db
+      DATABASE_URL: mysql://portfolio:${SIM_DB_PASSWORD:?}@db:3306/portfolio_db
+      DATABASE_SSL: "false"
+      SECRET_KEY: ${SIM_SECRET_KEY:?}
+      COOKIE_SECURE: "true"
+      ADMIN_NAME: Sim Admin
+      ADMIN_EMAIL: admin@portfolio.test
+      ADMIN_PASSWORD: ${SIM_ADMIN_PASSWORD:?}
+      EMAIL_HOST: mailpit
+      EMAIL_PORT: "1025"
+      EMAIL_USER: contact@portfolio.test
+      EMAIL_PASS: sim
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:4000/projetos').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  migrate:
+    container_name: portfolio-migrate-sim
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: "3306"
+      DATABASE_USER: portfolio
+      DATABASE_PASSWORD: ${SIM_DB_PASSWORD:?}
+      DATABASE_NAME: portfolio_db
+      DATABASE_URL: mysql://portfolio:${SIM_DB_PASSWORD:?}@db:3306/portfolio_db
+      DATABASE_SSL: "false"
+
+  db:
+    container_name: portfolio-db-sim
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SIM_ROOT_PASSWORD:?}
+      MYSQL_DATABASE: portfolio_db
+      MYSQL_USER: portfolio
+      MYSQL_PASSWORD: ${SIM_DB_PASSWORD:?}
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: portfolio-mailpit-sim
+    ports:
+      - "8025:8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: portfolio-caddy-sim
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./deploy/sim/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_started
+
+volumes:
+  db_data:
+    name: portfolio-sim-db-data
+  caddy_data:
+    name: portfolio-sim-caddy-data
+  caddy_config:
+    name: portfolio-sim-caddy-config
