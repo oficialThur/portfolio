@@ -8,7 +8,7 @@ function ProjectItem({ project }) {
     <li>
       <div className="group grid gap-8 border-b border-border py-10 transition-transform duration-200 ease-out hover:-translate-y-0.5 md:grid-cols-12 md:gap-6 md:py-16">
         <div className="md:col-span-7">
-          <h3 className="mt-2 text-display-xl underline-offset-8 group-hover:underline">
+          <h3 className="mt-2 text-display-lg underline-offset-8 group-hover:underline">
             {project.name}
           </h3>
           <p className="mt-6 max-w-[52ch] text-body-md text-text-secondary transition-colors duration-200 group-hover:text-text-primary">
@@ -27,7 +27,8 @@ function ProjectItem({ project }) {
               rel="noopener noreferrer"
               className="mt-3 w-fit text-text-primary hover:underline"
             >
-              {project.linkLabel ?? "GitHub"}
+              {project.linkLabel ??
+                (project.link.includes("github.com") ? "GitHub" : "Ver online")}
               <span className="sr-only"> (abre em nova aba)</span>
             </a>
           ) : null}

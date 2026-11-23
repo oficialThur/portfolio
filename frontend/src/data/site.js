@@ -1,8 +1,8 @@
 export const site = {
   name: "Arthur Henrique",
   firstName: "Arthur",
-  role: "Desenvolvedor Fullstack",
-  education: "Ciência da Computação",
+  role: "Desenvolvedor de Software",
+  education: "Ciência da Computação · Cotemig",
   location: "Belo Horizonte, Brasil",
 };
 
